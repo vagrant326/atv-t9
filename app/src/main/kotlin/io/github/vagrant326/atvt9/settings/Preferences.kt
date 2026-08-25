@@ -8,9 +8,33 @@ import io.github.vagrant326.atvt9.ime.KeyBindings
 import io.github.vagrant326.atvt9.model.Language
 
 /**
+ * How much of the key mapping the strip spells out.
+ *
+ * [KEYPAD] is the default, and on this hardware that is not a preference. **Nothing is printed
+ * on the remote** — the number keys carry no letters — so without the grid the user is pressing
+ * unlabelled buttons and guessing which one holds `w`. Every phone this method came from had the
+ * letters moulded into the keys; a TV remote is the first place T9 has ever run where the
+ * mapping is invisible, and the strip is the only surface that can carry it.
+ *
+ * [STRIP] is the grid turned off once the mapping is in the thumb, keeping the candidates and
+ * the state line. [OFF] gives the results underneath the most room and assumes everything.
+ */
+enum class HintMode(
+    @StringRes val labelRes: Int,
+    @StringRes val descriptionRes: Int,
+) {
+    KEYPAD(R.string.hint_keypad, R.string.hint_keypad_description),
+    STRIP(R.string.hint_strip, R.string.hint_strip_description),
+    OFF(R.string.hint_off, R.string.hint_off_description),
+    ;
+
+    fun next(): HintMode = entries[(ordinal + 1) % entries.size]
+}
+
+/**
  * A function the user can put on a button of their choosing.
  *
- * All four are conveniences except the trigger, which has to be a real key because the keyboard
+ * All five are conveniences except the trigger, which has to be a real key because the keyboard
  * is not on screen when it is needed.
  */
 enum class Binding(
@@ -43,6 +67,13 @@ enum class Binding(
         R.string.binding_language,
         R.string.binding_language_prompt,
         R.string.binding_language_fallback,
+    ),
+
+    /** Optional twice over: a numeric field turns the digit mode on by itself. */
+    DIGITS(
+        R.string.binding_digits,
+        R.string.binding_digits_prompt,
+        R.string.binding_digits_fallback,
     ),
 }
 
@@ -110,6 +141,20 @@ class Preferences(context: Context) {
         get() = store.getInt(KEY_LANGUAGE_KEYCODE, KeyBindings.NO_KEY)
         set(value) = store.edit().putInt(KEY_LANGUAGE_KEYCODE, value).apply()
 
+    var digitsKeyCode: Int
+        get() = store.getInt(KEY_DIGITS_KEYCODE, KeyBindings.NO_KEY)
+        set(value) = store.edit().putInt(KEY_DIGITS_KEYCODE, value).apply()
+
+    /**
+     * Defaults to the full grid. The remote has nothing printed on it, so a new user has no way
+     * to know which key carries which letters — see [HintMode].
+     */
+    var hintMode: HintMode
+        get() = store.getString(KEY_HINT_MODE, null)
+            ?.let { stored -> HintMode.entries.firstOrNull { it.name == stored } }
+            ?: HintMode.KEYPAD
+        set(value) = store.edit().putString(KEY_HINT_MODE, value.name).apply()
+
     /**
      * Whether committed words are added to the user dictionary.
      *
@@ -123,13 +168,20 @@ class Preferences(context: Context) {
         set(value) = store.edit().putBoolean(KEY_LEARNING, value).apply()
 
     val customKeys: CustomKeys
-        get() = CustomKeys(triggerKeyCode, spellKeyCode, deleteKeyCode, languageKeyCode)
+        get() = CustomKeys(
+            triggerKeyCode,
+            spellKeyCode,
+            deleteKeyCode,
+            languageKeyCode,
+            digitsKeyCode,
+        )
 
     fun keyCodeFor(binding: Binding): Int = when (binding) {
         Binding.TRIGGER -> triggerKeyCode
         Binding.SPELL -> spellKeyCode
         Binding.DELETE -> deleteKeyCode
         Binding.LANGUAGE -> languageKeyCode
+        Binding.DIGITS -> digitsKeyCode
     }
 
     fun assign(binding: Binding, keyCode: Int) {
@@ -138,6 +190,7 @@ class Preferences(context: Context) {
             Binding.SPELL -> spellKeyCode = keyCode
             Binding.DELETE -> deleteKeyCode = keyCode
             Binding.LANGUAGE -> languageKeyCode = keyCode
+            Binding.DIGITS -> digitsKeyCode = keyCode
         }
     }
 
@@ -149,6 +202,8 @@ class Preferences(context: Context) {
         const val KEY_SPELL_KEYCODE = "spell_keycode"
         const val KEY_DELETE_KEYCODE = "delete_keycode"
         const val KEY_LANGUAGE_KEYCODE = "language_keycode"
+        const val KEY_DIGITS_KEYCODE = "digits_keycode"
+        const val KEY_HINT_MODE = "hint_mode"
         const val KEY_LEARNING = "learning"
     }
 }

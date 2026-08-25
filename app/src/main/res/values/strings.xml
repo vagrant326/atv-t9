@@ -60,7 +60,7 @@
     <string name="binding_trigger_fallback">Without this the keyboard only appears when an app asks for it, which Netflix and YouTube do not always do.</string>
     <string name="binding_spell">Spell a new word</string>
     <string name="binding_spell_prompt">Press the key that should switch to spelling letter by letter.</string>
-    <string name="binding_spell_fallback">Also reachable by holding the last number key.</string>
+    <string name="binding_spell_fallback">Also reachable by holding 1, which the grid on the keyboard says.</string>
     <string name="binding_delete">Delete</string>
     <string name="binding_delete_prompt">Press the key that should delete.</string>
     <string name="binding_delete_fallback">BACK already deletes while a word is in progress.</string>
@@ -93,8 +93,36 @@
     <string name="words_empty">No words yet.</string>
 
     <string name="strip_spell">SPELLING</string>
-    <string name="strip_no_match">No word for these keys — spell it once and it is kept.</string>
+    <string name="strip_no_match">No word for these keys — hold 1 to spell it once and it is kept.</string>
     <string name="strip_untrained">No dictionary for this language: only spelling works.</string>
+    <string name="strip_no_editor">Nothing here takes text. Open a search box first.</string>
+    <string name="strip_not_learning">This field asked not to be learnt from, so nothing typed here is kept.</string>
+    <string name="strip_digits">DIGITS</string>
+    <string name="strip_space" translatable="false">␣</string>
+    <string name="strip_punctuation" translatable="false">.,-</string>
+
+    <string name="strip_hint_walk">Words</string>
+    <string name="strip_hint_commit">Accept</string>
+    <string name="strip_hint_spell">Spell</string>
+    <string name="strip_hint_delete">Delete</string>
+    <string name="strip_hint_language">Language</string>
+    <string name="strip_walk_keys" translatable="false">◀ ▶ · ▲ ▼ · CH</string>
+    <string name="strip_commit_keys">OK · 0 adds a space</string>
+    <string name="strip_fallback_spell">hold 1</string>
+    <string name="strip_fallback_delete">BACK</string>
+    <string name="strip_fallback_language">not set</string>
+
+    <string name="hint_keypad">Key grid</string>
+    <string name="hint_keypad_description">Shows the number keys and the letters on each. The remote has nothing printed on it, so leave this on until you know the layout.</string>
+    <string name="hint_strip">Words only</string>
+    <string name="hint_strip_description">Just the candidates and the state line. Assumes you know which key carries which letters.</string>
+    <string name="hint_off">Nothing</string>
+    <string name="hint_off_description">The smallest strip there is, leaving the most room for what is underneath.</string>
+    <string name="settings_key_hint">On-screen guide</string>
+
+    <string name="binding_digits">Digits mode</string>
+    <string name="binding_digits_prompt">Press the key that should switch between letters and digits.</string>
+    <string name="binding_digits_fallback">A field that wants a number switches on its own, so this is only for typing a number into an ordinary field.</string>
 
     <string name="update_title">Updates</string>
     <string name="update_subtitle">T9 installs from its GitHub releases.</string>

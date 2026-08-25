@@ -47,7 +47,7 @@
     <string name="binding_trigger_fallback">Bez niego klawiatura pojawia się tylko wtedy, kiedy aplikacja o nią poprosi — a Netflix i YouTube nie zawsze proszą.</string>
     <string name="binding_spell">Przeliteruj nowe słowo</string>
     <string name="binding_spell_prompt">Naciśnij klawisz, który ma przełączać na pisanie litera po literze.</string>
-    <string name="binding_spell_fallback">Da się też przytrzymaniem ostatniego klawisza z cyfrą.</string>
+    <string name="binding_spell_fallback">Da się też przytrzymaniem 1 — siatka na klawiaturze o tym mówi.</string>
     <string name="binding_delete">Usuwanie</string>
     <string name="binding_delete_prompt">Naciśnij klawisz, którym chcesz usuwać.</string>
     <string name="binding_delete_fallback">BACK i tak usuwa, dopóki słowo jest w trakcie pisania.</string>
@@ -80,8 +80,33 @@
     <string name="words_empty">Jeszcze nic tu nie ma.</string>
 
     <string name="strip_spell">LITEROWANIE</string>
-    <string name="strip_no_match">Żadne słowo nie pasuje — przeliteruj raz, zostanie zapamiętane.</string>
+    <string name="strip_no_match">Żadne słowo nie pasuje — przytrzymaj 1, przeliteruj raz, zostanie zapamiętane.</string>
     <string name="strip_untrained">Brak słownika dla tego języka: działa tylko literowanie.</string>
+    <string name="strip_no_editor">Tutaj nie ma gdzie pisać. Otwórz najpierw pole wyszukiwania.</string>
+    <string name="strip_not_learning">To pole prosi, żeby się z niego nie uczyć — nic tu wpisanego nie zostanie zapamiętane.</string>
+    <string name="strip_digits">CYFRY</string>
+
+    <string name="strip_hint_walk">Słowa</string>
+    <string name="strip_hint_commit">Zatwierdź</string>
+    <string name="strip_hint_spell">Literowanie</string>
+    <string name="strip_hint_delete">Kasowanie</string>
+    <string name="strip_hint_language">Język</string>
+    <string name="strip_commit_keys">OK · 0 dodaje spację</string>
+    <string name="strip_fallback_spell">przytrzymaj 1</string>
+    <string name="strip_fallback_delete">BACK</string>
+    <string name="strip_fallback_language">nieprzypisany</string>
+
+    <string name="hint_keypad">Siatka klawiszy</string>
+    <string name="hint_keypad_description">Pokazuje klawisze z cyframi i litery na każdym z nich. Na pilocie nic nie jest nadrukowane, więc zostaw włączone, dopóki nie znasz układu.</string>
+    <string name="hint_strip">Same słowa</string>
+    <string name="hint_strip_description">Tylko propozycje i linijka stanu. Zakłada, że wiesz, który klawisz ma które litery.</string>
+    <string name="hint_off">Nic</string>
+    <string name="hint_off_description">Najmniejszy możliwy pasek, zostawia najwięcej miejsca na to, co pod spodem.</string>
+    <string name="settings_key_hint">Podpowiedź na ekranie</string>
+
+    <string name="binding_digits">Tryb cyfr</string>
+    <string name="binding_digits_prompt">Naciśnij klawisz, który ma przełączać między literami a cyframi.</string>
+    <string name="binding_digits_fallback">Pole, które chce liczby, przełącza się samo — to jest tylko do wpisania liczby w zwykłe pole.</string>
 
     <string name="update_title">Aktualizacje</string>
     <string name="update_subtitle">T9 instaluje się ze swoich wydań na GitHubie.</string>

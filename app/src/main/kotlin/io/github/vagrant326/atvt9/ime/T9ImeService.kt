@@ -6,6 +6,7 @@ import android.text.InputType
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.ExtractedTextRequest
 import io.github.vagrant326.atvt9.core.Composer
 import io.github.vagrant326.atvt9.core.T9Engine
 import io.github.vagrant326.atvt9.model.DictionaryRepository
@@ -44,6 +45,14 @@ class T9ImeService : InputMethodService() {
 
     private var punctuationAt = -1
 
+    /**
+     * Digits instead of letters. Set by the field when it asks for a number, and by the user's
+     * key otherwise — a numeric field that offered word candidates would be offering nonsense.
+     */
+    private var digits = false
+
+    private var showLanguages = false
+
     override fun onCreate() {
         super.onCreate()
         preferences = Preferences(this)
@@ -62,6 +71,14 @@ class T9ImeService : InputMethodService() {
         engine.reset()
         engine.dictionary = dictionaries.dictionaryFor(preferences.activeLanguage)
         mayLearn = preferences.isLearning && isLearnable(info)
+        showLanguages = false
+
+        // A field that wants a number gets digits without being asked. Anything else starts in
+        // letters even if the mode was left on: the mode belongs to the field, not to the app.
+        val classification = info?.inputType?.and(InputType.TYPE_MASK_CLASS)
+        digits = classification == InputType.TYPE_CLASS_NUMBER ||
+            classification == InputType.TYPE_CLASS_PHONE ||
+            classification == InputType.TYPE_CLASS_DATETIME
     }
 
     override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
@@ -113,6 +130,7 @@ class T9ImeService : InputMethodService() {
             event.repeatCount,
             preferences.customKeys,
             engine.isComposing,
+            digits,
         ) ?: return super.onKeyDown(keyCode, event)
 
         return handle(action)
@@ -123,8 +141,15 @@ class T9ImeService : InputMethodService() {
             is Action.Ignore -> Unit
 
             is Action.Digit -> {
-                engine.press(action.digit, System.currentTimeMillis())
-                setComposing()
+                if (digits) {
+                    // Deterministic: nothing to disambiguate, so it goes straight into the field
+                    // rather than through the engine, which would offer words for it.
+                    finishWord(commit = true)
+                    currentInputConnection?.commitText(action.digit.toString(), 1)
+                } else {
+                    engine.press(action.digit, System.currentTimeMillis())
+                    setComposing()
+                }
             }
 
             is Action.Candidate -> {
@@ -175,9 +200,71 @@ class T9ImeService : InputMethodService() {
             is Action.Punctuation -> punctuate()
 
             is Action.NextLanguage -> nextLanguage()
+
+            is Action.ShowLanguages -> {
+                // Cycling blind is fine for two and unusable past that, so a hold names them.
+                showLanguages = preferences.enabledLanguages.size > 1
+            }
+
+            is Action.ToggleDigits -> {
+                finishWord(commit = true)
+                digits = !digits
+            }
+
+            /**
+             * The caret, a word at a time. The word in progress is committed first: leaving it
+             * composing while the caret walks away puts the editor's composing region somewhere
+             * the user is no longer looking, and what it does next is the editor's business.
+             */
+            is Action.WordJump -> {
+                finishWord(commit = true)
+                jumpWord(action.forward)
+            }
+
+            is Action.WordDelete -> {
+                finishWord(commit = false)
+                deleteWord()
+            }
         }
         render()
         return true
+    }
+
+    /**
+     * Moves the caret to the next or previous word boundary.
+     *
+     * Reads the text around the cursor from the editor rather than tracking a buffer here. The
+     * editor owns the text — it may already contain something this keyboard never typed, and a
+     * local copy would be wrong the moment it did.
+     */
+    private fun jumpWord(forward: Boolean) {
+        val connection = currentInputConnection ?: return
+        val extracted = connection.getExtractedText(ExtractedTextRequest(), 0) ?: return
+        val text = extracted.text ?: return
+        val at = extracted.selectionEnd.coerceIn(0, text.length)
+
+        var target = at
+        if (forward) {
+            while (target < text.length && text[target].isWhitespace()) target++
+            while (target < text.length && !text[target].isWhitespace()) target++
+        } else {
+            while (target > 0 && text[target - 1].isWhitespace()) target--
+            while (target > 0 && !text[target - 1].isWhitespace()) target--
+        }
+        connection.setSelection(target, target)
+    }
+
+    /** Deletes back to the previous word boundary, whitespace included. */
+    private fun deleteWord() {
+        val connection = currentInputConnection ?: return
+        val before = connection.getTextBeforeCursor(MAX_CONTEXT, 0) ?: return
+        if (before.isEmpty()) {
+            return
+        }
+        var count = 0
+        while (count < before.length && before[before.length - 1 - count].isWhitespace()) count++
+        while (count < before.length && !before[before.length - 1 - count].isWhitespace()) count++
+        connection.deleteSurroundingText(count, 0)
     }
 
     /**
@@ -254,6 +341,11 @@ class T9ImeService : InputMethodService() {
                 spelling = engine.mode == Composer.SPELL,
                 trained = engine.dictionary != null,
                 language = languageLabel(),
+                hintMode = preferences.hintMode,
+                digits = digits,
+                hasEditor = currentInputConnection != null,
+                learning = mayLearn,
+                customKeys = preferences.customKeys,
             )
         )
     }
@@ -305,5 +397,12 @@ class T9ImeService : InputMethodService() {
 
         /** What a TV query actually contains. Not a general punctuation set, and not meant as one. */
         const val PUNCTUATION = ".,-'&:/"
+
+        /**
+         * How much text before the caret a word-delete will look at. A TV query is a line, so
+         * this is far more than one word ever needs — the cap exists because the editor is under
+         * no obligation to be small and a novel would be copied across the process boundary.
+         */
+        const val MAX_CONTEXT = 512
     }
 }

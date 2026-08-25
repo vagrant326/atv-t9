@@ -68,6 +68,7 @@ class SettingsActivity : Activity() {
         )
 
         content.addView(sectionLabel(getString(R.string.settings_section_keyboard)))
+        content.addView(hintModeRow())
         content.addView(learningRow())
 
         content.addView(sectionLabel(getString(R.string.settings_section_words)))
@@ -176,13 +177,16 @@ class SettingsActivity : Activity() {
      * touch, so a field that does not take d-pad focus cannot be reached at all, and focusing
      * one does not always raise the IME on its own.
      *
-     * `TYPE_TEXT_FLAG_NO_SUGGESTIONS` matters more here than in the sibling apps. This keyboard
-     * learns what it is given, and a scratch field is exactly where somebody tries nonsense —
-     * the flag is what keeps that nonsense out of the dictionary. See `T9ImeService`.
+     * **A plain text field, with no `TYPE_TEXT_FLAG_NO_SUGGESTIONS`.** It carried that flag
+     * first, on the reasoning that a scratch field is where somebody tries nonsense and the
+     * dictionary should be spared it. That was backwards: `isLearnable` reads the flag as a
+     * refusal, so the one field in the app labelled *try it* was the only field in the app where
+     * learning could not happen — and the first thing reported was that learning did not work.
+     * A field for trying the keyboard has to behave like the fields it stands in for.
      */
     private fun scratchField() = EditText(this).apply {
         hint = getString(R.string.settings_scratch_hint)
-        inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+        inputType = InputType.TYPE_CLASS_TEXT
         imeOptions = EditorInfo.IME_ACTION_DONE
         setTextColor(Color.WHITE)
         setHintTextColor(MUTED)
@@ -216,6 +220,33 @@ class SettingsActivity : Activity() {
      * The field-level refusals in `T9ImeService` are not affected by this and cannot be: a
      * password is never learnt whatever this row says. This only governs the ordinary case.
      */
+    /**
+     * How much of the key mapping the strip carries. First in the section because on this
+     * hardware it is the setting that decides whether the keyboard is usable at all — see
+     * [HintMode].
+     */
+    private fun hintModeRow(): View {
+        lateinit var value: TextView
+        lateinit var explain: TextView
+
+        val control = row(
+            getString(R.string.settings_key_hint),
+            getString(preferences.hintMode.labelRes),
+        ) {
+            preferences.hintMode = preferences.hintMode.next()
+            value.text = getString(preferences.hintMode.labelRes)
+            explain.text = getString(preferences.hintMode.descriptionRes)
+        }
+        value = control.getChildAt(1) as TextView
+        explain = caption(getString(preferences.hintMode.descriptionRes))
+
+        return LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            addView(control)
+            addView(explain)
+        }
+    }
+
     private fun learningRow(): View {
         lateinit var value: TextView
 
