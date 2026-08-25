@@ -266,12 +266,13 @@ class CandidateStripView(context: Context) : LinearLayout(context) {
             context.getString(R.string.strip_fallback_language),
         )
 
-        // Lights the keys pressed so far, in order, so the grid reads as part of what is
-        // happening rather than as a static wall of text. On a method where a press produces
-        // nothing visible until the word resolves, this is the only per-press feedback there is.
-        val pressed = state.sequence.toSet()
+        // Only the key just pressed. Lighting every key in the sequence was the first attempt
+        // and it lit half the grid by the fourth letter — an indicator that is on almost
+        // everywhere indicates nothing, and the one thing the user needs confirmed is that the
+        // press they just made registered on the key they meant.
+        val last = state.sequence.lastOrNull()
         for ((key, cell) in keypadCells) {
-            cell.setTextColor(if (key in pressed) ACCENT else MUTED)
+            cell.setTextColor(if (key == last) ACCENT else MUTED)
         }
     }
 

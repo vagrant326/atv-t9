@@ -6,7 +6,9 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.provider.Settings
+import android.text.Editable
 import android.text.InputType
+import android.text.TextWatcher
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.KeyEvent
@@ -214,6 +216,22 @@ class SettingsActivity : Activity() {
             }
         }
         setOnClickListener { showKeyboardFor(it) }
+
+        // The word count sits above this field, and typing into it is the one way to change
+        // that count without ever leaving the screen — so onResume, which is where every other
+        // stale label is repaired, never fires and the counter sat still while words were being
+        // added a few centimetres above it.
+        addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(edited: Editable?) {
+                if (::wordsLabel.isInitialized) {
+                    wordsLabel.text = wordsLabelText()
+                }
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) = Unit
+
+            override fun onTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) = Unit
+        })
     }
 
     private fun showKeyboardFor(view: View) {
