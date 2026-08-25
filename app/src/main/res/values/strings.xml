@@ -96,7 +96,8 @@
     <string name="strip_no_match">No word for these keys — hold 1 to spell it once and it is kept.</string>
     <string name="strip_untrained">No dictionary for this language: only spelling works.</string>
     <string name="strip_no_editor">Nothing here takes text. Open a search box first.</string>
-    <string name="strip_not_learning">This field asked not to be learnt from, so nothing typed here is kept.</string>
+    <string name="strip_spell_only">SPELLING</string>
+    <string name="strip_no_match_only">No word for these keys — hold 1 to spell it.</string>
     <string name="strip_digits">DIGITS</string>
     <string name="strip_space" translatable="false">␣</string>
     <string name="strip_punctuation" translatable="false">.,-</string>

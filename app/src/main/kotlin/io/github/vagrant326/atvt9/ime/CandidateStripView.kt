@@ -228,14 +228,17 @@ class CandidateStripView(context: Context) : LinearLayout(context) {
             !state.hasEditor -> context.getString(R.string.strip_no_editor)
             !state.trained -> context.getString(R.string.strip_untrained)
             state.digits -> context.getString(R.string.strip_digits)
-            state.spelling -> context.getString(R.string.strip_spell)
-            state.candidates.isEmpty() && state.sequence.isNotEmpty() ->
-                context.getString(R.string.strip_no_match)
 
-            // Named only where it applies. A field that refused learning is not a bug and not a
-            // setting the user got wrong, but a word typed there vanishing without explanation
-            // reads as one - which is exactly how the first user report arrived.
-            !state.learning -> context.getString(R.string.strip_not_learning)
+            // Spelling still types here — it is the only way to enter anything the dictionary
+            // does not hold, which in a password or an address is everything. What changes is
+            // that the keyboard stops saying the word will be kept, because it will not.
+            state.spelling -> context.getString(
+                if (state.learning) R.string.strip_spell else R.string.strip_spell_only
+            )
+
+            state.candidates.isEmpty() && state.sequence.isNotEmpty() -> context.getString(
+                if (state.learning) R.string.strip_no_match else R.string.strip_no_match_only
+            )
 
             else -> ""
         }

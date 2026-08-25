@@ -83,7 +83,8 @@
     <string name="strip_no_match">Żadne słowo nie pasuje — przytrzymaj 1, przeliteruj raz, zostanie zapamiętane.</string>
     <string name="strip_untrained">Brak słownika dla tego języka: działa tylko literowanie.</string>
     <string name="strip_no_editor">Tutaj nie ma gdzie pisać. Otwórz najpierw pole wyszukiwania.</string>
-    <string name="strip_not_learning">To pole prosi, żeby się z niego nie uczyć — nic tu wpisanego nie zostanie zapamiętane.</string>
+    <string name="strip_spell_only">LITEROWANIE</string>
+    <string name="strip_no_match_only">Żadne słowo nie pasuje — przytrzymaj 1 i przeliteruj.</string>
     <string name="strip_digits">CYFRY</string>
 
     <string name="strip_hint_walk">Słowa</string>
