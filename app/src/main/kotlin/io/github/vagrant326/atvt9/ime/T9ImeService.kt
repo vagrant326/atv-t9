@@ -13,7 +13,6 @@ import io.github.vagrant326.atvt9.model.DictionaryRepository
 import io.github.vagrant326.atvt9.model.Language
 import io.github.vagrant326.atvt9.model.UserWords
 import io.github.vagrant326.atvt9.settings.Preferences
-import java.io.File
 
 /**
  * The keyboard.
@@ -57,7 +56,7 @@ class T9ImeService : InputMethodService() {
         super.onCreate()
         preferences = Preferences(this)
         dictionaries = DictionaryRepository(this)
-        userWords = UserWords(File(filesDir, USER_WORDS))
+        userWords = UserWords.of(this)
         engine = T9Engine(null, userWords.dictionary)
     }
 
@@ -393,8 +392,6 @@ class T9ImeService : InputMethodService() {
     }
 
     private companion object {
-        const val USER_WORDS = "words.bin"
-
         /** What a TV query actually contains. Not a general punctuation set, and not meant as one. */
         const val PUNCTUATION = ".,-'&:/"
 

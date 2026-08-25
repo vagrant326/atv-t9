@@ -6,9 +6,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.provider.Settings
-import android.text.Editable
 import android.text.InputType
-import android.text.TextWatcher
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.KeyEvent
@@ -27,7 +25,6 @@ import io.github.vagrant326.atvt9.model.DictionaryRepository
 import io.github.vagrant326.atvt9.model.Language
 import io.github.vagrant326.atvt9.model.UserWords
 import io.github.vagrant326.atvt9.update.UpdateActivity
-import java.io.File
 
 /**
  * The app's only settings screen. It exists because an Android TV app with no launcher activity
@@ -147,11 +144,27 @@ class SettingsActivity : Activity() {
         for ((binding, label) in bindingLabels) {
             label.text = bindingLabel(binding)
         }
-        if (::wordsLabel.isInitialized) {
-            wordsLabel.text = wordsLabelText()
-        }
         if (::statusLabel.isInitialized) {
             statusLabel.text = keyboardStatus()
+        }
+        refreshWordCount()
+
+        // The scratch field further down is on this screen, so words typed into it are added
+        // without the activity ever pausing and onResume cannot see them. The store says when
+        // it has saved instead of anything here guessing when to look.
+        UserWords.of(this).addListener(wordsChanged)
+    }
+
+    override fun onPause() {
+        UserWords.of(this).removeListener(wordsChanged)
+        super.onPause()
+    }
+
+    private val wordsChanged: () -> Unit = { refreshWordCount() }
+
+    private fun refreshWordCount() {
+        if (::wordsLabel.isInitialized) {
+            wordsLabel.text = wordsLabelText()
         }
     }
 
@@ -216,22 +229,6 @@ class SettingsActivity : Activity() {
             }
         }
         setOnClickListener { showKeyboardFor(it) }
-
-        // The word count sits above this field, and typing into it is the one way to change
-        // that count without ever leaving the screen — so onResume, which is where every other
-        // stale label is repaired, never fires and the counter sat still while words were being
-        // added a few centimetres above it.
-        addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(edited: Editable?) {
-                if (::wordsLabel.isInitialized) {
-                    wordsLabel.text = wordsLabelText()
-                }
-            }
-
-            override fun beforeTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) = Unit
-
-            override fun onTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) = Unit
-        })
     }
 
     private fun showKeyboardFor(view: View) {
@@ -299,10 +296,11 @@ class SettingsActivity : Activity() {
         return row
     }
 
-    private fun wordsLabelText(): String {
-        val learnt = UserWords(File(filesDir, "words.bin")).dictionary.size
-        return getString(R.string.settings_words_row, getString(R.string.words_title), learnt)
-    }
+    private fun wordsLabelText(): String = getString(
+        R.string.settings_words_row,
+        getString(R.string.words_title),
+        UserWords.of(this).dictionary.size,
+    )
 
     /**
      * One row per language rather than a list of allowed combinations. Combinations grow

@@ -70,7 +70,25 @@ class DictionaryRepository(private val context: Context) {
  * query is a dozen words, and the store is small enough that rewriting it whole is cheaper than
  * any incremental scheme — but not so cheap that doing it twelve times per query is sensible.
  */
-class UserWords(private val file: File) {
+class UserWords private constructor(private val file: File) {
+
+    /**
+     * Notified after a save that actually wrote something.
+     *
+     * The keyboard and the settings screens live in the same process — only the updater is
+     * split off — so this is a direct call, not a broadcast or a content provider. Everything
+     * here runs on the main thread: the keyboard saves from its key handling, the screens
+     * listen from their lifecycle callbacks, and neither ever touches this off it.
+     */
+    private val listeners = LinkedHashSet<() -> Unit>()
+
+    fun addListener(listener: () -> Unit) {
+        listeners.add(listener)
+    }
+
+    fun removeListener(listener: () -> Unit) {
+        listeners.remove(listener)
+    }
 
     val dictionary: UserDictionary by lazy {
         runCatching {
@@ -100,9 +118,35 @@ class UserWords(private val file: File) {
                 temporary.delete()
             }
         }.onFailure { Log.w(TAG, "could not save user words", it) }
+
+        // After the save, and only when there was one. A screen showing a count of these words
+        // has no other way to learn it changed: the keyboard adds them from a different
+        // component, and on the settings screen it does so without the activity ever pausing.
+        for (listener in listeners.toList()) {
+            listener()
+        }
     }
 
-    private companion object {
-        const val TAG = "T9"
+    companion object {
+
+        private const val TAG = "T9"
+        private const val FILE = "words.bin"
+
+        @Volatile
+        private var instance: UserWords? = null
+
+        /**
+         * The one store for the process.
+         *
+         * It used to be constructed wherever it was wanted — once in the keyboard and once in
+         * each settings screen — which made three in-memory copies of one file that could only
+         * reach each other by being written and read again. Beyond the stale counter that
+         * exposed it, that arrangement loses data: removing a word in the list left the
+         * keyboard's copy untouched, so the keyboard's next save put the word back.
+         */
+        fun of(context: Context): UserWords = instance ?: synchronized(this) {
+            instance ?: UserWords(File(context.applicationContext.filesDir, FILE))
+                .also { instance = it }
+        }
     }
 }

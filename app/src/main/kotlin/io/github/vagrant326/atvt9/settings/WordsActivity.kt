@@ -13,7 +13,6 @@ import android.widget.ScrollView
 import android.widget.TextView
 import io.github.vagrant326.atvt9.R
 import io.github.vagrant326.atvt9.model.UserWords
-import java.io.File
 
 /**
  * Everything the keyboard learnt, listed, with a way to remove any of it.
@@ -31,7 +30,7 @@ class WordsActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        words = UserWords(File(filesDir, "words.bin"))
+        words = UserWords.of(this)
 
         list = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
