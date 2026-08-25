@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="update_name">Aktualizacje T9</string>
+
+    <string name="settings_title">T9</string>
+    <string name="settings_subtitle">Klawisze z cyframi, jedno naciśnięcie na literę, słowo wybiera słownik.</string>
+    <string name="settings_languages">Języki</string>
+    <string name="settings_languages_body">Słowniki, przez które przechodzi klawisz języka.</string>
+    <string name="settings_language_missing">brak słownika</string>
+    <string name="settings_language_words">%1$,d słów</string>
+    <string name="settings_last_language">Jeden język musi zostać włączony.</string>
+    <string name="settings_keys">Klawisze pilota</string>
+    <string name="settings_keys_body">Na pilocie nic nie jest nadrukowane i żadne dwa piloty się nie zgadzają, więc każdy klawisz tutaj jest przechwytywany z pilota, a nie zgadywany.</string>
+    <string name="settings_words">Twoje słowa</string>
+    <string name="settings_words_body">%1$,d dopisanych przez pisanie.</string>
+    <string name="settings_words_none">Jeszcze nic. Słowo trafia tutaj, kiedy napiszesz takie, którego słownik nie miał.</string>
+    <string name="settings_updates">Aktualizacje</string>
+    <string name="settings_updates_body">Zainstalowana %1$s. Sprawdzane tylko wtedy, kiedy poprosisz.</string>
+    <string name="settings_enable">Ta klawiatura nie jest jeszcze włączona: Ustawienia → System → Klawiatura.</string>
+    <string name="settings_open_keyboards">Otwórz ustawienia klawiatur</string>
+    <string name="settings_unassigned">nieprzypisany</string>
+
+    <string name="binding_trigger">Pokaż klawiaturę</string>
+    <string name="binding_trigger_prompt">Naciśnij klawisz, który ma otwierać klawiaturę, kiedy jest schowana.</string>
+    <string name="binding_trigger_fallback">Bez niego klawiatura pojawia się tylko wtedy, kiedy aplikacja o nią poprosi — a Netflix i YouTube nie zawsze proszą.</string>
+    <string name="binding_spell">Przeliteruj nowe słowo</string>
+    <string name="binding_spell_prompt">Naciśnij klawisz, który ma przełączać na pisanie litera po literze.</string>
+    <string name="binding_spell_fallback">Da się też przytrzymaniem ostatniego klawisza z cyfrą.</string>
+    <string name="binding_delete">Usuwanie</string>
+    <string name="binding_delete_prompt">Naciśnij klawisz, którym chcesz usuwać.</string>
+    <string name="binding_delete_fallback">BACK i tak usuwa, dopóki słowo jest w trakcie pisania.</string>
+    <string name="binding_language">Zmiana języka</string>
+    <string name="binding_language_prompt">Naciśnij klawisz, którym chcesz zmieniać język.</string>
+    <string name="binding_language_fallback">Przydaje się dopiero przy więcej niż jednym języku.</string>
+
+    <string name="capture_title">Naciśnij klawisz</string>
+    <string name="capture_waiting">Czekam na klawisz…</string>
+    <string name="capture_captured">Przechwycone: %1$s</string>
+    <string name="capture_reserved">%1$s jest zarezerwowany przez klawiaturę i nie można go tu użyć.</string>
+    <string name="capture_save">Zapisz</string>
+    <string name="capture_clear">Wyczyść</string>
+    <string name="capture_back">BACK wychodzi bez zmian.</string>
+
+    <string name="words_title">Twoje słowa</string>
+    <string name="words_subtitle">Dopisywane, kiedy napiszesz słowo, którego słownik nie miał. Nic stąd nigdy nie opuściło tego urządzenia.</string>
+    <string name="words_uses">użyte %1$,d×</string>
+    <string name="words_remove">OK usuwa.</string>
+    <string name="words_empty">Jeszcze nic tu nie ma.</string>
+    <string name="words_removed">Usunięto %1$s.</string>
+
+    <string name="strip_spell">LITEROWANIE</string>
+    <string name="strip_no_match">Żadne słowo nie pasuje — przeliteruj raz, zostanie zapamiętane.</string>
+    <string name="strip_untrained">Brak słownika dla tego języka: działa tylko literowanie.</string>
+
+    <string name="update_title">Aktualizacje</string>
+    <string name="update_subtitle">T9 instaluje się ze swoich wydań na GitHubie.</string>
+    <string name="update_state_checking">SPRAWDZAM</string>
+    <string name="update_state_uptodate">AKTUALNA</string>
+    <string name="update_state_available">JEST NOWSZA</string>
+    <string name="update_state_none">NIC NIE WYDANO</string>
+    <string name="update_state_failed">NIE UDAŁO SIĘ SPRAWDZIĆ</string>
+    <string name="update_state_downloading">POBIERAM</string>
+    <string name="update_state_installing">INSTALUJĘ</string>
+    <string name="update_state_done">GOTOWE</string>
+    <string name="update_state_error">BŁĄD</string>
+    <string name="update_state_permission">POTRZEBNA ZGODA</string>
+    <string name="update_uptodate_body">Nic nowszego nie zostało wydane.</string>
+    <string name="update_none_headline">Brak wydań</string>
+    <string name="update_none_body">To repozytorium nie ma jeszcze żadnego wydania.</string>
+    <string name="update_failed_headline">Sprawdzenie nie powiodło się</string>
+    <string name="update_available_body">Zainstalowana %1$s.</string>
+    <string name="update_download">Pobierz i zainstaluj</string>
+    <string name="update_check_again">Sprawdź jeszcze raz</string>
+    <string name="update_try_again">Spróbuj ponownie</string>
+    <string name="update_busy">Pracuję…</string>
+    <string name="update_downloading_failed">Pobieranie nie powiodło się</string>
+    <string name="update_installing_body">Przekazuję plik instalatorowi systemu.</string>
+    <string name="update_installed_headline">Zainstalowana</string>
+    <string name="update_installed_body">Android zatrzymuje aplikację, kiedy ją podmienia, więc ten ekran się zamknie. Sama klawiatura działa dalej — aplikację otwierasz tylko po to, żeby zmienić ustawienia.</string>
+    <string name="update_install_failed">Instalacja nie powiodła się</string>
+    <string name="update_install_status">status %1$d\n%2$s</string>
+    <string name="update_no_detail">brak szczegółów</string>
+    <string name="update_start_failed">Nie udało się rozpocząć instalacji</string>
+    <string name="update_no_dialog_headline">Brak okna potwierdzenia</string>
+    <string name="update_no_dialog_body">System poprosił o potwierdzenie, ale nie powiedział, co pokazać.</string>
+    <string name="update_dialog_failed">Nie udało się otworzyć okna</string>
+    <string name="update_problem">PROBLEM</string>
+    <string name="update_permission_headline">Zezwól na instalowanie</string>
+    <string name="update_permission_body">Android potrzebuje twojej zgody, żeby ta aplikacja mogła instalować pakiety.</string>
+    <string name="update_permission_open">Otwórz ekran zgody</string>
+    <string name="update_install">Zainstaluj</string>
+    <string name="update_installed_label">ZAINSTALOWANA</string>
+    <string name="update_privacy">Sprawdzane tylko wtedy, kiedy naciśniesz. Jedno zapytanie o wersję, jedno o plik, nic wysyłanego. To, co piszesz, nigdy nie opuszcza urządzenia.</string>
+    <string name="update_back">BACK wraca do ustawień.</string>
+
+</resources>

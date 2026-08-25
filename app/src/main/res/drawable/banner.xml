@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="320dp"
+    android:height="180dp"
+    android:viewportWidth="320"
+    android:viewportHeight="180">
+
+    <path
+        android:fillColor="#101014"
+        android:pathData="M0,0h320v180H0z" />
+
+    <group>
+        <!-- The keypad, and beside it four presses resolving to one word. Four presses, one
+             word: that is the entire claim this keyboard makes. -->
+        <path android:fillColor="#4A6E86" android:pathData="M44,50h22v22H44z" />
+        <path android:fillColor="#4A6E86" android:pathData="M71,50h22v22H71z" />
+        <path android:fillColor="#4A6E86" android:pathData="M98,50h22v22H98z" />
+
+        <path android:fillColor="#7FD1FF" android:pathData="M44,77h22v22H44z" />
+        <path android:fillColor="#E8E8EC" android:pathData="M71,77h22v22H71z" />
+        <path android:fillColor="#7FD1FF" android:pathData="M98,77h22v22H98z" />
+
+        <path android:fillColor="#4A6E86" android:pathData="M44,104h22v22H44z" />
+        <path android:fillColor="#4A6E86" android:pathData="M71,104h22v22H71z" />
+        <path android:fillColor="#4A6E86" android:pathData="M98,104h22v22H98z" />
+
+        <path android:fillColor="#4A6E86" android:pathData="M168,80h16v16h-16z" />
+        <path android:fillColor="#4A6E86" android:pathData="M190,80h16v16h-16z" />
+        <path android:fillColor="#4A6E86" android:pathData="M212,80h16v16h-16z" />
+        <path android:fillColor="#4A6E86" android:pathData="M234,80h16v16h-16z" />
+        <path android:fillColor="#E8E8EC" android:pathData="M262,74h28v28h-28z" />
+    </group>
+</vector>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Overrides for the dev channel. Both apps are installed at once, so the launcher entry
+         and above all the keyboard picker have to say which is which. Not translated, and they
+         do not need to be: the base values they override are not translated either. -->
+    <string name="app_name" translatable="false">atv-t9 dev</string>
+    <string name="ime_name" translatable="false">T9 dev</string>
+</resources>

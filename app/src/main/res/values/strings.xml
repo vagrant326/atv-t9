@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name" translatable="false">atv-t9</string>
+    <string name="ime_name" translatable="false">T9</string>
+
+    <string name="subtype_pl" translatable="false">Polski</string>
+    <string name="subtype_en" translatable="false">English</string>
+    <string name="language_pl" translatable="false">Polski</string>
+    <string name="language_en" translatable="false">English</string>
+
+    <string name="update_working" translatable="false">…</string>
+    <string name="update_percent" translatable="false">%1$d%%</string>
+    <string name="update_installing_headline" translatable="false">%1$d kB</string>
+    <string name="update_name">T9 updates</string>
+
+    <string name="settings_title">T9</string>
+    <string name="settings_subtitle">Number keys, one press per letter, the dictionary picks the word.</string>
+    <string name="settings_languages">Languages</string>
+    <string name="settings_languages_body">Which dictionaries the language key cycles through.</string>
+    <string name="settings_language_missing">no dictionary installed</string>
+    <string name="settings_language_words">%1$,d words</string>
+    <string name="settings_last_language">At least one language has to stay on.</string>
+    <string name="settings_keys">Remote keys</string>
+    <string name="settings_keys_body">Nothing is printed on this remote and no two remotes agree, so every key here is captured from the remote rather than assumed.</string>
+    <string name="settings_words">Your words</string>
+    <string name="settings_words_body">%1$,d added by typing them.</string>
+    <string name="settings_words_none">Nothing yet. Words are added when you type one the dictionary did not have.</string>
+    <string name="settings_updates">Updates</string>
+    <string name="settings_updates_body">Installed %1$s. Checked only when you ask.</string>
+    <string name="settings_enable">This keyboard is not enabled yet: Settings → System → Keyboard.</string>
+    <string name="settings_open_keyboards">Open Android keyboard settings</string>
+    <string name="settings_unassigned">not assigned</string>
+
+    <string name="binding_trigger">Show the keyboard</string>
+    <string name="binding_trigger_prompt">Press the key that should open the keyboard when it is hidden.</string>
+    <string name="binding_trigger_fallback">Without this the keyboard only appears when an app asks for it, which Netflix and YouTube do not always do.</string>
+    <string name="binding_spell">Spell a new word</string>
+    <string name="binding_spell_prompt">Press the key that should switch to spelling letter by letter.</string>
+    <string name="binding_spell_fallback">Also reachable by holding the last number key.</string>
+    <string name="binding_delete">Delete</string>
+    <string name="binding_delete_prompt">Press the key that should delete.</string>
+    <string name="binding_delete_fallback">BACK already deletes while a word is in progress.</string>
+    <string name="binding_language">Switch language</string>
+    <string name="binding_language_prompt">Press the key that should change language.</string>
+    <string name="binding_language_fallback">Only useful with more than one language enabled.</string>
+
+    <string name="capture_title">Press a key</string>
+    <string name="capture_waiting">Waiting for a key…</string>
+    <string name="capture_captured">Captured: %1$s</string>
+    <string name="capture_reserved">%1$s is reserved by the keyboard and cannot be used here.</string>
+    <string name="capture_save">Save</string>
+    <string name="capture_clear">Clear</string>
+    <string name="capture_back">BACK leaves without changing anything.</string>
+
+    <string name="words_title">Your words</string>
+    <string name="words_subtitle">Added when you type a word the dictionary did not have. Nothing here has ever left this device.</string>
+    <string name="words_uses">used %1$,d×</string>
+    <string name="words_remove">Press OK to remove.</string>
+    <string name="words_empty">No words yet.</string>
+    <string name="words_removed">Removed %1$s.</string>
+
+    <string name="strip_spell">SPELLING</string>
+    <string name="strip_no_match">No word for these keys — spell it once and it is kept.</string>
+    <string name="strip_untrained">No dictionary for this language: only spelling works.</string>
+
+    <string name="update_title">Updates</string>
+    <string name="update_subtitle">T9 installs from its GitHub releases.</string>
+    <string name="update_state_checking">CHECKING</string>
+    <string name="update_state_uptodate">UP TO DATE</string>
+    <string name="update_state_available">AVAILABLE</string>
+    <string name="update_state_none">NOTHING PUBLISHED</string>
+    <string name="update_state_failed">COULD NOT CHECK</string>
+    <string name="update_state_downloading">DOWNLOADING</string>
+    <string name="update_state_installing">INSTALLING</string>
+    <string name="update_state_done">DONE</string>
+    <string name="update_state_error">FAILED</string>
+    <string name="update_state_permission">PERMISSION NEEDED</string>
+    <string name="update_uptodate_body">Nothing newer has been released.</string>
+    <string name="update_none_headline">No releases</string>
+    <string name="update_none_body">This repository has no releases yet.</string>
+    <string name="update_failed_headline">Check failed</string>
+    <string name="update_available_body">Installed %1$s.</string>
+    <string name="update_download">Download and install</string>
+    <string name="update_check_again">Check again</string>
+    <string name="update_try_again">Try again</string>
+    <string name="update_busy">Working…</string>
+    <string name="update_downloading_failed">Download failed</string>
+    <string name="update_installing_body">Handing the file to the system installer.</string>
+    <string name="update_installed_headline">Installed</string>
+    <string name="update_installed_body">Android stops an app when it replaces it, so this screen will close. The keyboard itself keeps working — reopen the app only to change settings.</string>
+    <string name="update_install_failed">Install failed</string>
+    <string name="update_install_status">status %1$d\n%2$s</string>
+    <string name="update_no_detail">no detail</string>
+    <string name="update_start_failed">Could not start the install</string>
+    <string name="update_no_dialog_headline">No confirmation dialog</string>
+    <string name="update_no_dialog_body">The system asked for confirmation but did not say what to show.</string>
+    <string name="update_dialog_failed">Could not open the dialog</string>
+    <string name="update_problem">PROBLEM</string>
+    <string name="update_permission_headline">Allow installing</string>
+    <string name="update_permission_body">Android needs your permission for this app to install packages.</string>
+    <string name="update_permission_open">Open the permission screen</string>
+    <string name="update_install">Install</string>
+    <string name="update_installed_label">INSTALLED</string>
+    <string name="update_privacy">Checked only when you press it. One request for the version, one for the file, nothing sent. What you type never leaves the device.</string>
+    <string name="update_back">BACK returns to settings.</string>
+
+</resources>
