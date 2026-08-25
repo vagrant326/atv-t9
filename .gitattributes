@@ -1,0 +1,12 @@
+* text=auto eol=lf
+
+# CI runs on Linux. A CRLF gradlew fails with a bad interpreter error that reads like
+# anything but a line-ending problem, so pin it explicitly.
+gradlew text eol=lf
+*.sh text eol=lf
+gradlew.bat text eol=crlf
+
+*.jar binary
+*.apk binary
+*.jks binary
+*.png binary

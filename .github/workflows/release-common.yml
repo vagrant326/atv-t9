@@ -1,0 +1,162 @@
+name: Release (shared)
+
+# Both channels release the same way and differ only in the tag prefix, the flavour and the
+# asset name, so this is called with parameters rather than copied. A copy would drift, and
+# the half that drifts is the signing.
+on:
+  workflow_call:
+    inputs:
+      channel:
+        description: 'prod or dev'
+        required: true
+        type: string
+      tag-prefix:
+        description: 'v for production, dev- for the development channel'
+        required: true
+        type: string
+      flavour:
+        description: 'Gradle flavour name, capitalised: Prod or Dev'
+        required: true
+        type: string
+      asset:
+        description: 'Published APK filename, constant so the download URL never moves'
+        required: true
+        type: string
+      alias:
+        description: 'Rolling tag that always points at the newest build of this channel'
+        required: true
+        type: string
+      bump:
+        description: 'patch, minor or major'
+        required: false
+        default: patch
+        type: string
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Tags are the version source of truth, so the whole history is needed.
+          fetch-depth: 0
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v6
+
+      # Each channel counts its own versions. github.run_number is per-workflow runner state:
+      # rename this file and it resets to 1, versionCode goes backwards, and Android refuses
+      # every later update with nothing obvious to blame.
+      - name: Resolve next version
+        id: v
+        env:
+          PREFIX: ${{ inputs.tag-prefix }}
+          BUMP: ${{ inputs.bump }}
+        run: |
+          set -eu
+          LATEST=$(git tag --list "$PREFIX[0-9]*.[0-9]*.[0-9]*" --sort=-v:refname | head -1)
+          if [ -z "$LATEST" ]; then
+            LATEST="${PREFIX}0.0.0"
+            echo "No tags for this channel yet, starting from $LATEST"
+          fi
+          CURRENT="${LATEST#$PREFIX}"
+          MAJOR="${CURRENT%%.*}"; REST="${CURRENT#*.}"
+          MINOR="${REST%%.*}"; PATCH="${REST#*.}"
+          case "$BUMP" in
+            major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
+            minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
+            patch) PATCH=$((PATCH + 1)) ;;
+            *) echo "::error::Unknown bump '$BUMP'"; exit 1 ;;
+          esac
+          if [ "$MINOR" -gt 99 ] || [ "$PATCH" -gt 99 ]; then
+            echo "::error::MINOR and PATCH must stay below 100 or versionCode stops increasing"
+            exit 1
+          fi
+          NAME="$MAJOR.$MINOR.$PATCH"
+          if git rev-parse "$PREFIX$NAME" >/dev/null 2>&1; then
+            echo "::error::Tag $PREFIX$NAME already exists"
+            exit 1
+          fi
+          echo "tag=$PREFIX$NAME" >> "$GITHUB_OUTPUT"
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+          echo "code=$((MAJOR * 10000 + MINOR * 100 + PATCH))" >> "$GITHUB_OUTPUT"
+          echo "Releasing $PREFIX$NAME (was $LATEST, bump=$BUMP)"
+
+      - name: Check
+        run: ./gradlew --no-daemon check
+
+      - name: Lint
+        run: ./gradlew --no-daemon lint
+
+      # The keystore must never change. A different key means Android refuses to install the
+      # update over the existing app, and the only way out is an uninstall, which takes the
+      # user's settings with it. Both channels sign with the same key; they are separate
+      # applications by applicationId, not by certificate.
+      - name: Restore keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          set -eu
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "::error::KEYSTORE_BASE64 is not set. See docs/release-and-signing.md"
+            exit 1
+          fi
+          printf '%s' "$KEYSTORE_BASE64" | tr -d '[:space:]' | base64 -d > "$RUNNER_TEMP/release.jks"
+
+      - name: Assemble release
+        env:
+          KEYSTORE_FILE: ${{ runner.temp }}/release.jks
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: atv
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          ./gradlew --no-daemon assemble${{ inputs.flavour }}Release \
+            -PversionCode=${{ steps.v.outputs.code }} \
+            -PversionName=${{ steps.v.outputs.name }}
+
+      # A misconfigured signing block falls back to the debug key in some Gradle setups, and a
+      # debug-signed APK will not install over a release-signed one. Finding that out on the TV
+      # costs a release cycle, so fail here instead.
+      - name: Verify the APK is signed with the release key
+        run: |
+          set -eu
+          APK=$(find app/build/outputs/apk -path '*release*' -name '*.apk' | head -1)
+          if [ -z "$APK" ]; then echo "::error::No release APK produced"; exit 1; fi
+          mv "$APK" "${{ inputs.asset }}"
+          echo "APK=${{ inputs.asset }}" >> "$GITHUB_ENV"
+          APKSIGNER=$(ls -d "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -1)
+          "$APKSIGNER" verify --print-certs "${{ inputs.asset }}"
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ steps.v.outputs.tag }}" "$APK" \
+            --target "${{ github.sha }}" \
+            --title "${{ steps.v.outputs.tag }}" \
+            --latest=${{ inputs.channel == 'prod' }} \
+            --prerelease=${{ inputs.channel == 'dev' }} \
+            --generate-notes
+
+      # A permanent address for the newest build of this channel. A tag cannot be repointed in
+      # place, so the alias release and its tag are deleted and recreated each time.
+      - name: Refresh the rolling alias
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -eu
+          gh release delete "${{ inputs.alias }}" --yes --cleanup-tag 2>/dev/null || true
+          gh release create "${{ inputs.alias }}" "$APK" \
+            --target "${{ github.sha }}" \
+            --title "${{ inputs.alias }}" \
+            --latest=false \
+            --prerelease=${{ inputs.channel == 'dev' }} \
+            --notes "Rolling alias for the ${{ inputs.channel }} channel. Currently ${{ steps.v.outputs.tag }}."
+
+      - name: Clean up keystore
+        if: always()
+        run: rm -f "$RUNNER_TEMP/release.jks"

@@ -1,0 +1,16 @@
+.gradle/
+build/
+local.properties
+.idea/
+*.iml
+.kotlin/
+
+# Signing material never belongs in the repository. See docs/release-and-signing.md.
+*.jks
+*.keystore
+*.jks.base64
+
+# Corpora are fetched, not vendored: licensing and size both argue against committing them.
+corpus/raw/
+__pycache__/
+*.pyc

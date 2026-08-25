@@ -1,0 +1,35 @@
+name: Release dev
+
+# Every push to develop publishes a dev build. It installs as its own application, alongside
+# whatever is on the TV from main, so an experiment that misbehaves does not take the working
+# keyboard with it.
+on:
+  push:
+    branches: [develop]
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Which part of the version to raise'
+        required: true
+        default: patch
+        type: choice
+        options: [patch, minor, major]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-dev
+  cancel-in-progress: false
+
+jobs:
+  release:
+    uses: ./.github/workflows/release-common.yml
+    secrets: inherit
+    with:
+      channel: dev
+      tag-prefix: dev-
+      flavour: Dev
+      asset: atv-t9-dev.apk
+      alias: latest-dev
+      bump: ${{ github.event.inputs.bump || 'patch' }}

@@ -1,0 +1,34 @@
+name: Release
+
+# A push to main is a production release. There is no separate tagging step, and nothing lands
+# on main that is not meant to ship - which in practice means a pull request from develop.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Which part of the version to raise'
+        required: true
+        default: patch
+        type: choice
+        options: [patch, minor, major]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-prod
+  cancel-in-progress: false
+
+jobs:
+  release:
+    uses: ./.github/workflows/release-common.yml
+    secrets: inherit
+    with:
+      channel: prod
+      tag-prefix: v
+      flavour: Prod
+      asset: atv-t9.apk
+      alias: latest
+      bump: ${{ github.event.inputs.bump || 'patch' }}
