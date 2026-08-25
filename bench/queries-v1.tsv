@@ -1,0 +1,26 @@
+query	language	note
+# Real queries, supplied by the user: things actually typed into this TV.
+# Small on purpose. A short real set beats a large invented one, because the whole
+# argument for prefix disambiguation rests on out-of-dictionary input, and only the
+# person using the keyboard knows what that looks like for them.
+# Generated padding lives in queries-generated.tsv and is reported separately, never
+# merged into this file.
+dzikie ucho	pl
+electroboom	en	out-of-dictionary channel name
+kung fu panda	en
+mentalista	pl
+dziewczyna z papierosem	pl
+game quiz	en
+twoset violin	en	out-of-dictionary channel name
+jazza	en	out-of-dictionary channel name
+piątek the series	mixed	Polish word plus English words
+accantus six	mixed	Polish group plus English word
+bruno mars	en
+elowine	en	out-of-dictionary channel name
+daft punk	en
+beyonce	en	typed without the accent, as the user types it
+bohren & der club of gore	en	contains an ampersand
+dr house	en
+bones	en
+prestiż	pl	Polish diacritic
+jackie chan	en
