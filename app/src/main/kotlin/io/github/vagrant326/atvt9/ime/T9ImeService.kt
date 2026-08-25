@@ -86,7 +86,7 @@ class T9ImeService : InputMethodService() {
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
         if (!isInputViewShown) {
             val trigger = preferences.triggerKeyCode
-            if (trigger != KeyBindings.NO_KEY && keyCode == trigger) {
+            if (trigger != KeyBindings.NO_KEY && keyCode == trigger && event.repeatCount == 0) {
                 // requestShowSelf is the supported route and arrived in API 28. Below that
                 // showWindow is the only way in, and it is what every IME used before 28.
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -190,8 +190,13 @@ class T9ImeService : InputMethodService() {
     }
 
     private fun nextLanguage() {
-        finishWord(commit = true)
         val enabled = preferences.enabledLanguages
+        // One language has nothing to switch between, and a key that silently does nothing is
+        // worse than one that does not exist — so the word in progress is left alone too.
+        if (enabled.size < 2) {
+            return
+        }
+        finishWord(commit = true)
         val next = enabled[(enabled.indexOf(preferences.activeLanguage) + 1) % enabled.size]
         preferences.activeLanguage = next
         engine.dictionary = dictionaries.dictionaryFor(next)

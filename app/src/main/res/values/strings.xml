@@ -9,28 +9,48 @@
     <string name="language_pl" translatable="false">Polski</string>
     <string name="language_en" translatable="false">English</string>
 
+    <string name="capture_no_key" translatable="false">—</string>
     <string name="update_working" translatable="false">…</string>
     <string name="update_percent" translatable="false">%1$d%%</string>
     <string name="update_installing_headline" translatable="false">%1$d kB</string>
     <string name="update_name">T9 updates</string>
 
-    <string name="settings_title">T9</string>
-    <string name="settings_subtitle">Number keys, one press per letter, the dictionary picks the word.</string>
-    <string name="settings_languages">Languages</string>
-    <string name="settings_languages_body">Which dictionaries the language key cycles through.</string>
-    <string name="settings_language_missing">no dictionary installed</string>
-    <string name="settings_language_words">%1$,d words</string>
-    <string name="settings_last_language">At least one language has to stay on.</string>
-    <string name="settings_keys">Remote keys</string>
-    <string name="settings_keys_body">Nothing is printed on this remote and no two remotes agree, so every key here is captured from the remote rather than assumed.</string>
-    <string name="settings_words">Your words</string>
-    <string name="settings_words_body">%1$,d added by typing them.</string>
-    <string name="settings_words_none">Nothing yet. Words are added when you type one the dictionary did not have.</string>
-    <string name="settings_updates">Updates</string>
-    <string name="settings_updates_body">Installed %1$s. Checked only when you ask.</string>
-    <string name="settings_enable">This keyboard is not enabled yet: Settings → System → Keyboard.</string>
-    <string name="settings_open_keyboards">Open Android keyboard settings</string>
-    <string name="settings_unassigned">not assigned</string>
+    <string name="settings_source_url" translatable="false">github.com/vagrant326/atv-t9</string>
+    <string name="settings_version">Version %1$s</string>
+    <string name="settings_source">Source at %1$s</string>
+
+    <string name="settings_section_keyboard">Keyboard</string>
+    <string name="settings_section_words">Your words</string>
+    <string name="settings_section_languages">Languages</string>
+    <string name="settings_section_buttons">Buttons</string>
+    <string name="settings_section_system">System</string>
+    <string name="settings_section_updates">Updates</string>
+    <string name="settings_section_typing">How to type</string>
+    <string name="settings_section_try">Try it</string>
+
+    <string name="settings_learning">Remember new words</string>
+    <string name="settings_learning_note">A word you type that the dictionary did not have costs one slow spelling, once. Turn this off and it costs that every time. Passwords and fields that ask not to be learnt from are never remembered, whatever this says.</string>
+
+    <string name="settings_words_row">%1$s: %2$,d</string>
+    <string name="settings_words_note">Everything the keyboard learnt, and where to remove any of it.</string>
+
+    <string name="settings_language_words">%1$s — %2$,d words</string>
+    <string name="settings_language_untrained">%1$s — no dictionary</string>
+    <string name="settings_language_note">The language switch cycles through the ones you tick, in this order.</string>
+    <string name="settings_language_minimum">At least one language has to stay on.</string>
+
+    <string name="settings_buttons_note">Remotes disagree about which buttons exist and about what they report. Press the button you want and it gets recorded. Only the first is worth assigning on most remotes: spelling is also a held number key, deleting is BACK while a word is in progress, and the language switch does nothing with one language on. Number keys cannot be assigned — they are the keyboard.</string>
+    <string name="settings_binding_row">%1$s: %2$s</string>
+    <string name="settings_binding_unset">not set</string>
+
+    <string name="settings_system_keyboard">Android keyboard settings</string>
+    <string name="settings_system_keyboard_note">Leaves this app. Enable or switch the active keyboard there.</string>
+    <string name="settings_check_updates">Check for updates</string>
+    <string name="settings_updates_note">The only thing here that uses the network. It runs in a separate process, only when you press it, and sends nothing. What you type never leaves the device.</string>
+
+    <string name="settings_typing_note">Number keys carry the letters, one press each — 2 for a, b or c, and the dictionary works out which you meant. Polish accents come free: press 9 for ż, 6 for ó, and the word arrives spelled properly.\n\nLeft and right walk the words the presses could mean. Centre finishes the word, 0 finishes it and adds a space, 1 cycles the punctuation a search box needs.\n\nWhen nothing matches, the strip says so. Hold any number key to spell the word out letter by letter — that costs a few presses once, and the word is kept, so the next time it is one press per letter like everything else.\n\nBACK drops a word in progress, then closes the keyboard.</string>
+    <string name="settings_scratch_hint">Type here</string>
+    <string name="settings_scratch_note">Focus this field to bring the keyboard up. Nothing here is saved, and nothing typed here is learnt.</string>
 
     <string name="binding_trigger">Show the keyboard</string>
     <string name="binding_trigger_prompt">Press the key that should open the keyboard when it is hidden.</string>
@@ -45,20 +65,29 @@
     <string name="binding_language_prompt">Press the key that should change language.</string>
     <string name="binding_language_fallback">Only useful with more than one language enabled.</string>
 
-    <string name="capture_title">Press a key</string>
-    <string name="capture_waiting">Waiting for a key…</string>
-    <string name="capture_captured">Captured: %1$s</string>
-    <string name="capture_reserved">%1$s is reserved by the keyboard and cannot be used here.</string>
+    <string name="capture_choose">Choose button</string>
     <string name="capture_save">Save</string>
     <string name="capture_clear">Clear</string>
-    <string name="capture_back">BACK leaves without changing anything.</string>
+    <string name="capture_state_none">NO SELECTION</string>
+    <string name="capture_state_listening">PRESS A BUTTON</string>
+    <string name="capture_state_selected">SELECTED</string>
+    <string name="capture_state_unusable">CANNOT BE USED</string>
+    <string name="capture_state_saved">SAVED</string>
+    <string name="capture_waiting">Waiting…</string>
+    <string name="capture_code">code %1$d</string>
+    <string name="capture_reserved">The keyboard needs this button for typing, so it cannot be assigned. Choose again and press a different one.</string>
+    <string name="capture_assigned_label">ASSIGNED NOW</string>
+    <string name="capture_assigned_none">Nothing</string>
+    <string name="capture_assigned_value">%1$s  ·  code %2$d</string>
+    <string name="capture_footer_idle">BACK returns to settings.</string>
+    <string name="capture_footer_listening">The next button you press is the one taken. BACK cancels.</string>
+    <string name="capture_footer_saved">Saved. BACK returns to settings.</string>
 
     <string name="words_title">Your words</string>
     <string name="words_subtitle">Added when you type a word the dictionary did not have. Nothing here has ever left this device.</string>
     <string name="words_uses">used %1$,d×</string>
     <string name="words_remove">Press OK to remove.</string>
     <string name="words_empty">No words yet.</string>
-    <string name="words_removed">Removed %1$s.</string>
 
     <string name="strip_spell">SPELLING</string>
     <string name="strip_no_match">No word for these keys — spell it once and it is kept.</string>

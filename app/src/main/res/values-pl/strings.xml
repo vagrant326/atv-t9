@@ -3,23 +3,41 @@
 
     <string name="update_name">Aktualizacje T9</string>
 
-    <string name="settings_title">T9</string>
-    <string name="settings_subtitle">Klawisze z cyframi, jedno naciśnięcie na literę, słowo wybiera słownik.</string>
-    <string name="settings_languages">Języki</string>
-    <string name="settings_languages_body">Słowniki, przez które przechodzi klawisz języka.</string>
-    <string name="settings_language_missing">brak słownika</string>
-    <string name="settings_language_words">%1$,d słów</string>
-    <string name="settings_last_language">Jeden język musi zostać włączony.</string>
-    <string name="settings_keys">Klawisze pilota</string>
-    <string name="settings_keys_body">Na pilocie nic nie jest nadrukowane i żadne dwa piloty się nie zgadzają, więc każdy klawisz tutaj jest przechwytywany z pilota, a nie zgadywany.</string>
-    <string name="settings_words">Twoje słowa</string>
-    <string name="settings_words_body">%1$,d dopisanych przez pisanie.</string>
-    <string name="settings_words_none">Jeszcze nic. Słowo trafia tutaj, kiedy napiszesz takie, którego słownik nie miał.</string>
-    <string name="settings_updates">Aktualizacje</string>
-    <string name="settings_updates_body">Zainstalowana %1$s. Sprawdzane tylko wtedy, kiedy poprosisz.</string>
-    <string name="settings_enable">Ta klawiatura nie jest jeszcze włączona: Ustawienia → System → Klawiatura.</string>
-    <string name="settings_open_keyboards">Otwórz ustawienia klawiatur</string>
-    <string name="settings_unassigned">nieprzypisany</string>
+    <string name="settings_version">Wersja %1$s</string>
+    <string name="settings_source">Kod źródłowy: %1$s</string>
+
+    <string name="settings_section_keyboard">Klawiatura</string>
+    <string name="settings_section_words">Twoje słowa</string>
+    <string name="settings_section_languages">Języki</string>
+    <string name="settings_section_buttons">Klawisze</string>
+    <string name="settings_section_system">System</string>
+    <string name="settings_section_updates">Aktualizacje</string>
+    <string name="settings_section_typing">Jak pisać</string>
+    <string name="settings_section_try">Wypróbuj</string>
+
+    <string name="settings_learning">Zapamiętuj nowe słowa</string>
+    <string name="settings_learning_note">Słowo, którego słownik nie miał, kosztuje jedno powolne literowanie — raz. Po wyłączeniu kosztuje tyle za każdym razem. Hasła i pola, które proszą, żeby się z nich nie uczyć, nie są zapamiętywane niezależnie od tego ustawienia.</string>
+
+    <string name="settings_words_row">%1$s: %2$,d</string>
+    <string name="settings_words_note">Wszystko, czego klawiatura się nauczyła, i miejsce, żeby cokolwiek stąd usunąć.</string>
+
+    <string name="settings_language_words">%1$s — %2$,d słów</string>
+    <string name="settings_language_untrained">%1$s — brak słownika</string>
+    <string name="settings_language_note">Przełącznik języka przechodzi przez zaznaczone, w tej kolejności.</string>
+    <string name="settings_language_minimum">Jeden język musi zostać włączony.</string>
+
+    <string name="settings_buttons_note">Piloty nie zgadzają się co do tego, które klawisze istnieją ani co zgłaszają. Naciśnij ten, którego chcesz, a zostanie zapisany. Na większości pilotów warto przypisać tylko pierwszy: literowanie to też przytrzymany klawisz z cyfrą, usuwanie to BACK w trakcie pisania słowa, a przełącznik języka przy jednym języku nie robi nic. Klawiszy z cyframi nie da się przypisać — one są klawiaturą.</string>
+    <string name="settings_binding_row">%1$s: %2$s</string>
+    <string name="settings_binding_unset">nieprzypisany</string>
+
+    <string name="settings_system_keyboard">Ustawienia klawiatur Androida</string>
+    <string name="settings_system_keyboard_note">Wychodzi z tej aplikacji. Tam włączasz i przełączasz aktywną klawiaturę.</string>
+    <string name="settings_check_updates">Sprawdź aktualizacje</string>
+    <string name="settings_updates_note">Jedyna rzecz tutaj, która używa sieci. Działa w osobnym procesie, tylko kiedy naciśniesz, i nic nie wysyła. To, co piszesz, nigdy nie opuszcza urządzenia.</string>
+
+    <string name="settings_typing_note">Litery są na klawiszach z cyframi, jedno naciśnięcie na literę — 2 to a, b albo c, a słownik sam dochodzi, o które chodziło. Polskie znaki masz za darmo: naciskasz 9 na ż, 6 na ó, i słowo wychodzi napisane porządnie.\n\nLewo i prawo przechodzą przez słowa, które mogły z tych naciśnięć powstać. Środek kończy słowo, 0 kończy je i dodaje spację, 1 przechodzi przez znaki, których potrzebuje wyszukiwarka.\n\nKiedy nic nie pasuje, pasek to mówi. Przytrzymaj dowolny klawisz z cyfrą, żeby przeliterować słowo litera po literze — to kosztuje kilka naciśnięć raz, bo słowo zostaje zapamiętane i następnym razem jest po jednym naciśnięciu na literę, jak wszystko inne.\n\nBACK porzuca pisane słowo, potem zamyka klawiaturę.</string>
+    <string name="settings_scratch_hint">Pisz tutaj</string>
+    <string name="settings_scratch_note">Ustaw focus na tym polu, żeby podnieść klawiaturę. Nic tu nie jest zapisywane ani zapamiętywane.</string>
 
     <string name="binding_trigger">Pokaż klawiaturę</string>
     <string name="binding_trigger_prompt">Naciśnij klawisz, który ma otwierać klawiaturę, kiedy jest schowana.</string>
@@ -34,20 +52,29 @@
     <string name="binding_language_prompt">Naciśnij klawisz, którym chcesz zmieniać język.</string>
     <string name="binding_language_fallback">Przydaje się dopiero przy więcej niż jednym języku.</string>
 
-    <string name="capture_title">Naciśnij klawisz</string>
-    <string name="capture_waiting">Czekam na klawisz…</string>
-    <string name="capture_captured">Przechwycone: %1$s</string>
-    <string name="capture_reserved">%1$s jest zarezerwowany przez klawiaturę i nie można go tu użyć.</string>
+    <string name="capture_choose">Wybierz klawisz</string>
     <string name="capture_save">Zapisz</string>
     <string name="capture_clear">Wyczyść</string>
-    <string name="capture_back">BACK wychodzi bez zmian.</string>
+    <string name="capture_state_none">BRAK WYBORU</string>
+    <string name="capture_state_listening">NACIŚNIJ KLAWISZ</string>
+    <string name="capture_state_selected">WYBRANY</string>
+    <string name="capture_state_unusable">NIE MOŻNA UŻYĆ</string>
+    <string name="capture_state_saved">ZAPISANY</string>
+    <string name="capture_waiting">Czekam…</string>
+    <string name="capture_code">kod %1$d</string>
+    <string name="capture_reserved">Klawiatura potrzebuje tego klawisza do pisania, więc nie można go przypisać. Wybierz ponownie i naciśnij inny.</string>
+    <string name="capture_assigned_label">PRZYPISANY TERAZ</string>
+    <string name="capture_assigned_none">Nic</string>
+    <string name="capture_assigned_value">%1$s  ·  kod %2$d</string>
+    <string name="capture_footer_idle">BACK wraca do ustawień.</string>
+    <string name="capture_footer_listening">Zostanie wzięty następny naciśnięty klawisz. BACK anuluje.</string>
+    <string name="capture_footer_saved">Zapisano. BACK wraca do ustawień.</string>
 
     <string name="words_title">Twoje słowa</string>
     <string name="words_subtitle">Dopisywane, kiedy napiszesz słowo, którego słownik nie miał. Nic stąd nigdy nie opuściło tego urządzenia.</string>
     <string name="words_uses">użyte %1$,d×</string>
     <string name="words_remove">OK usuwa.</string>
     <string name="words_empty">Jeszcze nic tu nie ma.</string>
-    <string name="words_removed">Usunięto %1$s.</string>
 
     <string name="strip_spell">LITEROWANIE</string>
     <string name="strip_no_match">Żadne słowo nie pasuje — przeliteruj raz, zostanie zapamiętane.</string>

@@ -49,6 +49,13 @@ class WordsActivity : Activity() {
                 label(getString(R.string.words_subtitle), SECONDARY, 15f)
                     .apply { setPadding(0, dp(8), 0, 0) }
             )
+            // The rows are clickable and nothing else says so. On a TV there is no affordance
+            // to discover by hovering, so an instruction that is never read is still cheaper
+            // than a list that looks inert.
+            addView(
+                label(getString(R.string.words_remove), MUTED, 13f)
+                    .apply { setPadding(0, dp(6), 0, 0) }
+            )
             addView(empty)
             addView(list)
         }
