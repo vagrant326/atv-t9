@@ -30,6 +30,9 @@
     <string name="settings_binding_row">%1$s: %2$s</string>
     <string name="settings_binding_unset">nieprzypisany</string>
 
+    <string name="settings_status_active">Używana. Ustaw focus na polu tekstowym, a się podniesie.</string>
+    <string name="settings_status_enabled">Włączona, ale używana jest inna klawiatura. Przełącz się na tę poniżej.</string>
+    <string name="settings_status_disabled">Jeszcze nie włączona. Android wymaga ręcznego włączenia każdej klawiatury — zrób to poniżej, a potem się na nią przełącz.</string>
     <string name="settings_system_keyboard">Ustawienia klawiatur Androida</string>
     <string name="settings_system_keyboard_note">Wychodzi z tej aplikacji. Tam włączasz i przełączasz aktywną klawiaturę.</string>
     <string name="settings_check_updates">Sprawdź aktualizacje</string>

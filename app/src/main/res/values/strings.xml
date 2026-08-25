@@ -43,6 +43,9 @@
     <string name="settings_binding_row">%1$s: %2$s</string>
     <string name="settings_binding_unset">not set</string>
 
+    <string name="settings_status_active">In use. Focus a text field and it comes up.</string>
+    <string name="settings_status_enabled">Enabled, but another keyboard is in use. Switch to this one below.</string>
+    <string name="settings_status_disabled">Not enabled yet. Android needs every keyboard turned on by hand — do that below, then switch to it.</string>
     <string name="settings_system_keyboard">Android keyboard settings</string>
     <string name="settings_system_keyboard_note">Leaves this app. Enable or switch the active keyboard there.</string>
     <string name="settings_check_updates">Check for updates</string>

@@ -47,6 +47,7 @@ class SettingsActivity : Activity() {
      */
     private val bindingLabels = mutableMapOf<Binding, TextView>()
     private lateinit var wordsLabel: TextView
+    private lateinit var statusLabel: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,6 +84,8 @@ class SettingsActivity : Activity() {
         content.addView(caption(getString(R.string.settings_buttons_note)))
 
         content.addView(sectionLabel(getString(R.string.settings_section_system)))
+        statusLabel = caption(keyboardStatus())
+        content.addView(statusLabel)
         content.addView(
             navigationRow(getString(R.string.settings_system_keyboard)) {
                 startActivity(Intent(Settings.ACTION_INPUT_METHOD_SETTINGS))
@@ -136,6 +139,32 @@ class SettingsActivity : Activity() {
         }
         if (::wordsLabel.isInitialized) {
             wordsLabel.text = wordsLabelText()
+        }
+        if (::statusLabel.isInitialized) {
+            statusLabel.text = keyboardStatus()
+        }
+    }
+
+    /**
+     * Whether this keyboard is enabled, and whether it is the one currently in use.
+     *
+     * On screen rather than in a log, because there is no console on the television and never
+     * will be — see the toolchain notes. "It does not come up when I focus a field" has a
+     * mundane explanation that nothing else in the app can rule out: Android requires every IME
+     * to be enabled by hand and then selected, and an app that is merely installed looks
+     * identical to one that is broken. This row is the difference.
+     */
+    private fun keyboardStatus(): String {
+        val manager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        val enabled = manager.enabledInputMethodList.any { it.packageName == packageName }
+        val active = Settings.Secure
+            .getString(contentResolver, Settings.Secure.DEFAULT_INPUT_METHOD)
+            ?.startsWith("$packageName/") == true
+
+        return when {
+            active -> getString(R.string.settings_status_active)
+            enabled -> getString(R.string.settings_status_enabled)
+            else -> getString(R.string.settings_status_disabled)
         }
     }
 
