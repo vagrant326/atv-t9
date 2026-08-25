@@ -102,6 +102,13 @@ class SettingsActivity : Activity() {
         )
         content.addView(caption(getString(R.string.settings_updates_note)))
 
+        content.addView(sectionLabel(getString(R.string.settings_section_support)))
+        content.addView(
+            row(getString(R.string.settings_support), "") {
+                startActivity(Intent(this, SupportActivity::class.java))
+            }
+        )
+
         content.addView(sectionLabel(getString(R.string.settings_section_typing)))
         content.addView(caption(getString(R.string.settings_typing_note)))
 

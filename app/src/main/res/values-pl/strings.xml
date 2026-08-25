@@ -104,6 +104,15 @@
     <string name="hint_off_description">Najmniejszy możliwy pasek, zostawia najwięcej miejsca na to, co pod spodem.</string>
     <string name="settings_key_hint">Podpowiedź na ekranie</string>
 
+    <string name="settings_section_support">Wsparcie</string>
+    <string name="settings_support">Wesprzyj tę klawiaturę</string>
+    <string name="support_title">Wesprzyj tę klawiaturę</string>
+    <string name="support_free">T9 jest otwartoźródłowy, na licencji MIT. Jest darmowy i taki pozostanie — nic w nim nie jest zablokowane dla tych, którzy nie zapłacą.</string>
+    <string name="support_thanks">Jeśli oszczędził ci już paru tysięcy wycieczek pilotem po ekranowej siatce, możesz postawić mi kawę.</string>
+    <string name="support_scan">Zeskanuj telefonem</string>
+    <string name="support_or">albo otwórz sam</string>
+    <string name="support_back">BACK wraca do ustawień.</string>
+
     <string name="binding_digits">Tryb cyfr</string>
     <string name="binding_digits_prompt">Naciśnij klawisz, który ma przełączać między literami a cyframi.</string>
     <string name="binding_digits_fallback">Pole, które chce liczby, przełącza się samo — to jest tylko do wpisania liczby w zwykłe pole.</string>

@@ -120,6 +120,16 @@
     <string name="hint_off_description">The smallest strip there is, leaving the most room for what is underneath.</string>
     <string name="settings_key_hint">On-screen guide</string>
 
+    <string name="settings_section_support">Support</string>
+    <string name="settings_support">Support this keyboard</string>
+    <string name="support_title">Support this keyboard</string>
+    <string name="support_free">T9 is open source and MIT licensed. It is free, it stays free, and nothing in it is locked away for people who do not pay.</string>
+    <string name="support_thanks">If it has saved you a few thousand trips around an on-screen grid, you can buy me a coffee.</string>
+    <string name="support_scan">Scan with your phone</string>
+    <string name="support_url" translatable="false">ko-fi.com/vagrant326</string>
+    <string name="support_or">or open it yourself</string>
+    <string name="support_back">BACK returns to settings.</string>
+
     <string name="binding_digits">Digits mode</string>
     <string name="binding_digits_prompt">Press the key that should switch between letters and digits.</string>
     <string name="binding_digits_fallback">A field that wants a number switches on its own, so this is only for typing a number into an ordinary field.</string>

@@ -57,6 +57,11 @@
              everything typed that cannot be inspected or emptied is the thing docs/00-overview
              §3.1 promises this project does not build. -->
         <activity
+            android:name=".settings.SupportActivity"
+            android:exported="false"
+            android:label="@string/support_title" />
+
+        <activity
             android:name=".settings.WordsActivity"
             android:exported="false"
             android:label="@string/words_title" />
