@@ -76,6 +76,14 @@ class T9ImeService : InputMethodService() {
     }
 
     /**
+     * Never. The default says yes to every landscape screen, and a television is landscape
+     * always — so leaving this alone puts the keyboard into extract mode permanently, which
+     * covers the whole display with a white text editor and hides the field the user was
+     * actually filling in. It reads as the keyboard failing to open rather than as a mode.
+     */
+    override fun onEvaluateFullscreenMode(): Boolean = false
+
+    /**
      * The keyboard is not always visible when a key arrives, and this is where a previous
      * version of a sibling app left a television unnavigable: consuming d-pad events while
      * hidden means nothing on the device can be reached any more.
