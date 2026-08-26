@@ -94,6 +94,9 @@
     <string name="strip_hint_language">Język</string>
     <string name="strip_hint_case">Wielkie</string>
     <string name="strip_case_keys">Przytrzymaj 0 · jedno słowo, potem na stałe</string>
+    <string name="strip_hint_symbols">Znaki</string>
+    <string name="strip_symbol_keys">Przytrzymaj 1 między słowami · wszystkie 32</string>
+    <string name="strip_symbols">ZNAKI — naciśnij klawisz, naciśnij znowu, żeby zmienić</string>
     <string name="strip_commit_keys">OK · 0 dodaje spację</string>
     <string name="strip_fallback_spell">przytrzymaj 1</string>
     <string name="strip_fallback_language">nieprzypisany</string>

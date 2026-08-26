@@ -91,6 +91,9 @@ class CandidateStripView(context: Context) : LinearLayout(context) {
         addView(hintLine(context.getString(R.string.strip_hint_case), hintValue().apply {
             text = context.getString(R.string.strip_case_keys)
         }))
+        addView(hintLine(context.getString(R.string.strip_hint_symbols), hintValue().apply {
+            text = context.getString(R.string.strip_symbol_keys)
+        }))
     }
 
     /**
@@ -162,9 +165,12 @@ class CandidateStripView(context: Context) : LinearLayout(context) {
      * tells a user who already knows what the tag means; eight cells reading `ABCĄĆ` tell everyone
      * else, and this is the surface that exists precisely because the remote itself says nothing.
      */
-    private fun cellText(key: Char, letterCase: LetterCase): String {
+    private fun cellText(key: Char, letterCase: LetterCase, symbols: Boolean): String {
         if (key == ' ') {
             return ""
+        }
+        if (symbols && key in Keypad.FIRST_DIGIT..Keypad.LAST_DIGIT) {
+            return "$key\n${Keypad.symbolsOn(key)}"
         }
         val letters = when (key) {
             '0' -> context.getString(R.string.strip_space)
@@ -185,7 +191,7 @@ class CandidateStripView(context: Context) : LinearLayout(context) {
 
     private fun cell(key: Char): TextView {
         return TextView(context).apply {
-            text = cellText(key, LetterCase.LOWER)
+            text = cellText(key, LetterCase.LOWER, symbols = false)
             setTextColor(MUTED)
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
             gravity = Gravity.CENTER
@@ -253,6 +259,7 @@ class CandidateStripView(context: Context) : LinearLayout(context) {
             // asked for input, there is nowhere to send characters.
             !state.hasEditor -> context.getString(R.string.strip_no_editor)
             !state.trained -> context.getString(R.string.strip_untrained)
+            state.symbols -> context.getString(R.string.strip_symbols)
             state.digits -> context.getString(R.string.strip_digits)
 
             // Spelling still types here — it is the only way to enter anything the dictionary
@@ -314,7 +321,7 @@ class CandidateStripView(context: Context) : LinearLayout(context) {
         // press they just made registered on the key they meant.
         val last = state.sequence.lastOrNull()
         for ((key, cell) in keypadCells) {
-            cell.text = cellText(key, state.letterCase)
+            cell.text = cellText(key, state.letterCase, state.symbols)
             cell.setTextColor(if (key == last) ACCENT else MUTED)
         }
     }
@@ -369,6 +376,7 @@ data class StripState(
     val language: String,
     val hintMode: HintMode,
     val letterCase: LetterCase,
+    val symbols: Boolean,
     val digits: Boolean,
     val hasEditor: Boolean,
     val learning: Boolean,

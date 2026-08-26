@@ -53,6 +53,21 @@ sealed interface Action {
     data object ToggleCase : Action
 
     /**
+     * Swaps the letters on `2`-`9` for the full set of QWERTY marks, from holding `1` outside a
+     * word.
+     *
+     * Spent by one mark, so it cannot be left on: an address needs `@` once and a password needs
+     * `!` once. Cycling that one mark is a run of presses on the same key, exactly as key `1`
+     * cycles its seven — anything else ends the layer before it is handled, so the letter the user
+     * meant comes from the letter run rather than the symbol run.
+     *
+     * It never reaches the engine. A mark is committed straight into the field and replaced in
+     * place while it is being cycled, which is the mechanism key `1` already uses — so nothing
+     * here can end up in the dictionary or in a candidate list.
+     */
+    data object ToggleSymbols : Action
+
+    /**
      * A key whose meaning is not settled yet: released, `0` is a space; held, it is [ToggleCase].
      * Resolved in `T9ImeService.onKeyUp`.
      *
@@ -153,7 +168,12 @@ object KeyBindings {
             // keys, which made it invisible: an undiscoverable gesture on a key with no label
             // is the same as no feature. One key can be named on the grid, and is.
             if (keyCode == KeyEvent.KEYCODE_1 && !digits) {
-                return Action.Spell
+                // One hold, two meanings, chosen by whether there is a word to act on. Spelling
+                // is what the strip already advertises for a sequence with no match — "hold 1 to
+                // spell it" is shown *while composing* and nowhere else — so that is the state it
+                // belongs to. Outside a word there is nothing to spell, and a mark is what the
+                // user reaches `1` for anyway.
+                return if (composing) Action.Spell else Action.ToggleSymbols
             }
             // Nothing to capitalise in a digit field, and a gesture that silently does nothing is
             // worse than one that is not there.

@@ -8,6 +8,7 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.ExtractedTextRequest
 import io.github.vagrant326.atvt9.core.Composer
+import io.github.vagrant326.atvt9.core.Keypad
 import io.github.vagrant326.atvt9.core.LetterCase
 import io.github.vagrant326.atvt9.core.T9Engine
 import io.github.vagrant326.atvt9.model.DictionaryRepository
@@ -56,6 +57,19 @@ class T9ImeService : InputMethodService() {
     private var deferredKey = KeyEvent.KEYCODE_UNKNOWN
 
     /**
+     * Whether `2`-`9` are carrying marks instead of letters, and where in one key's run the mark
+     * being cycled has got to.
+     *
+     * Held here rather than in [T9Engine] because a mark is not a word: it goes straight into the
+     * field and is replaced in place while cycled, which is the mechanism key `1` already uses.
+     * Keeping it out of the engine is what guarantees a symbol can never reach the dictionary or
+     * a candidate list.
+     */
+    private var symbols = false
+    private var symbolKey: Char? = null
+    private var symbolAt = 0
+
+    /**
      * Digits instead of letters. Set by the field when it asks for a number, and by the user's
      * key otherwise — a numeric field that offered word candidates would be offering nonsense.
      */
@@ -84,9 +98,10 @@ class T9ImeService : InputMethodService() {
         showLanguages = false
         deferredKey = KeyEvent.KEYCODE_UNKNOWN
 
-        // Like the digit mode below, the case belongs to the field and not to the app: a lock left
-        // on in one box must not follow the user into the next one.
+        // Like the digit mode below, the case and the mark layer belong to the field and not to
+        // the app: neither a lock nor a half-used layer may follow the user into the next box.
         letterCase = LetterCase.LOWER
+        leaveSymbols()
 
         // A field that wants a number gets digits without being asked. Anything else starts in
         // letters even if the mode was left on: the mode belongs to the field, not to the app.
@@ -169,11 +184,27 @@ class T9ImeService : InputMethodService() {
     }
 
     private fun handle(action: Action): Boolean {
+        // The mark layer is spent by one mark, and cycling that mark is a run of presses on the
+        // same key. Anything else ends the layer *before* it is handled, so a letter press that
+        // follows a mark comes out of the letter run and not the symbol run.
+        if (symbols && !continuesMark(action)) {
+            leaveSymbols()
+        }
+
         when (action) {
             is Action.Ignore -> Unit
 
+            is Action.ToggleSymbols -> {
+                finishWord(commit = true)
+                val entering = !symbols
+                leaveSymbols()
+                symbols = entering
+            }
+
             is Action.Digit -> {
-                if (digits) {
+                if (symbols) {
+                    cycleMark(action.digit)
+                } else if (digits) {
                     // Deterministic: nothing to disambiguate, so it goes straight into the field
                     // rather than through the engine, which would offer words for it.
                     finishWord(commit = true)
@@ -321,6 +352,48 @@ class T9ImeService : InputMethodService() {
      * the only arrangement that fits. Replacing in place rather than appending is what makes a
      * wrong choice one more press instead of a delete and a retry.
      */
+    /**
+     * Whether [action] belongs to the mark currently being cycled.
+     *
+     * A swallowed key repeat does not end the layer, and neither does the toggle itself — asking
+     * afterwards would find the layer already gone and it could be entered but never left. The
+     * first press after entering has no key to match, which is why a null [symbolKey] continues.
+     */
+    private fun continuesMark(action: Action): Boolean = when (action) {
+        is Action.Ignore, is Action.ToggleSymbols -> true
+        is Action.Digit -> symbolKey == null || action.digit == symbolKey
+        else -> false
+    }
+
+    private fun leaveSymbols() {
+        symbols = false
+        symbolKey = null
+        symbolAt = 0
+    }
+
+    /**
+     * Commits one mark, replacing the previous one in place while the same key is being tapped.
+     *
+     * The same bargain [punctuate] makes on key `1`, and for the same reason: a wrong choice costs
+     * one more press rather than a delete and a retry. Nothing here goes through the engine, so a
+     * mark cannot be learnt, cannot be offered as a candidate and cannot collide with a word.
+     */
+    private fun cycleMark(digit: Char) {
+        val run = Keypad.symbolsOn(digit)
+        if (run.isEmpty()) {
+            return
+        }
+        if (digit == symbolKey) {
+            symbolAt = (symbolAt + 1) % run.length
+            currentInputConnection?.deleteSurroundingText(1, 0)
+        } else {
+            finishWord(commit = true)
+            symbolKey = digit
+            symbolAt = 0
+        }
+        currentInputConnection?.commitText(run[symbolAt].toString(), 1)
+    }
+
     private fun punctuate() {
         // Worked out before [finishWord], which clears the position — that reset is how every
         // other action breaks the run, and this is the one caller that has to survive it.
@@ -398,6 +471,7 @@ class T9ImeService : InputMethodService() {
                 language = languageLabel(),
                 hintMode = preferences.hintMode,
                 letterCase = letterCase,
+                symbols = symbols,
                 digits = digits,
                 hasEditor = currentInputConnection != null,
                 learning = mayLearn,

@@ -26,6 +26,34 @@ object Keypad {
         '9' to "wxyzźż",
     )
 
+    /**
+     * Every printable mark on a QWERTY keyboard, four to a key.
+     *
+     * All thirty-two rather than only the ones key `1` leaves out, so there is one rule to learn —
+     * this is the whole set and `1` is a shortcut to the seven a television query uses. A layer
+     * holding "the leftovers" would be a list nobody could predict the contents of.
+     *
+     * Grouped by kind, and the grouping is the feature. Nothing is printed on the remote, so the
+     * legend on screen is the only place these can be found, and a reader scanning eight cells for
+     * a bracket does better with brackets kept together than with any frequency order. Within a
+     * group the commonest goes first, so the marks a password or an address actually needs — `@`,
+     * `!`, `-`, `.` — are one tap each.
+     *
+     * Deliberately not shared with the dictionary: `sequenceOf` still refuses any word carrying
+     * one of these, so a mark can be typed without a symbol ever becoming something the engine
+     * tries to offer candidates for.
+     */
+    private val SYMBOLS = mapOf(
+        '2' to ".,;:",
+        '3' to "!?'\"",
+        '4' to "@#/\\",
+        '5' to "$%&*",
+        '6' to "()<>",
+        '7' to "[]{}",
+        '8' to "-_+=",
+        '9' to "`~^|",
+    )
+
     private val BY_LETTER: Map<Char, Char> =
         KEYS.entries.flatMap { (digit, letters) -> letters.map { it to digit } }.toMap()
 
@@ -33,6 +61,8 @@ object Keypad {
     val LETTERS: String = KEYS.keys.sorted().joinToString("") { KEYS.getValue(it) }
 
     fun lettersOn(digit: Char): String = KEYS[digit] ?: ""
+
+    fun symbolsOn(digit: Char): String = SYMBOLS[digit] ?: ""
 
     fun digitOf(letter: Char): Char? = BY_LETTER[letter.lowercaseChar()]
 
