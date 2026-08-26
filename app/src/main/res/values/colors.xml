@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The logo palette, named by role and not by hue, because the dev channel overrides two of
+         these values and the geometry has to stay in one place. -->
+    <color name="logo_plate">#101014</color>
+    <color name="logo_key">#4A6E86</color>
+    <color name="logo_accent">#7FD1FF</color>
+    <color name="logo_glyph">#E8E8EC</color>
+</resources>

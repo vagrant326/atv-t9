@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Amber for the dev channel. Both channels are installed at once and the launcher shows the
+         icon well before the label, so colour is what actually tells them apart from across the
+         room. The geometry is deliberately untouched: it says which method this is, and that does
+         not change between channels. The darker step is copper rather than a desaturated amber,
+         which at this lightness would read olive.
+
+         The plate and the glyph keep their production values. The glyph is the resolved character,
+         and recolouring it would change what the icon says. -->
+    <color name="logo_key">#8F5F26</color>
+    <color name="logo_accent">#FFC44D</color>
+</resources>
