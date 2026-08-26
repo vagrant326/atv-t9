@@ -274,13 +274,16 @@ class T9ImeService : InputMethodService() {
      * wrong choice one more press instead of a delete and a retry.
      */
     private fun punctuate() {
+        // Worked out before [finishWord], which clears the position — that reset is how every
+        // other action breaks the run, and this is the one caller that has to survive it.
+        val next = if (punctuationAt < 0) 0 else (punctuationAt + 1) % PUNCTUATION.length
         finishWord(commit = true)
         val connection = currentInputConnection ?: return
-        punctuationAt = if (punctuationAt < 0) 0 else (punctuationAt + 1) % PUNCTUATION.length
-        if (punctuationAt > 0) {
+        if (next > 0) {
             connection.deleteSurroundingText(1, 0)
         }
-        connection.commitText(PUNCTUATION[punctuationAt].toString(), 1)
+        connection.commitText(PUNCTUATION[next].toString(), 1)
+        punctuationAt = next
     }
 
     private fun nextLanguage() {
