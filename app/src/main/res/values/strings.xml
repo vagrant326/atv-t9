@@ -63,7 +63,7 @@
     <string name="binding_spell_fallback">Also reachable by holding 1, which the grid on the keyboard says.</string>
     <string name="binding_delete">Delete</string>
     <string name="binding_delete_prompt">Press the key that should delete.</string>
-    <string name="binding_delete_fallback">BACK already deletes while a word is in progress.</string>
+    <string name="binding_delete_fallback">Up already deletes, and always does. Assign a key only if you would rather not reach for the d-pad.</string>
     <string name="binding_language">Switch language</string>
     <string name="binding_language_prompt">Press the key that should change language.</string>
     <string name="binding_language_fallback">Only useful with more than one language enabled.</string>
@@ -107,10 +107,10 @@
     <string name="strip_hint_spell">Spell</string>
     <string name="strip_hint_delete">Delete</string>
     <string name="strip_hint_language">Language</string>
-    <string name="strip_walk_keys" translatable="false">◀ ▶ · ▲ ▼ · CH</string>
+    <string name="strip_walk_keys" translatable="false">◀ ▶ · ▼ · CH</string>
     <string name="strip_commit_keys">OK · 0 adds a space</string>
     <string name="strip_fallback_spell">hold 1</string>
-    <string name="strip_fallback_delete">BACK</string>
+    <string name="strip_delete_keys" translatable="false">▲</string>
     <string name="strip_fallback_language">not set</string>
 
     <string name="hint_keypad">Key grid</string>

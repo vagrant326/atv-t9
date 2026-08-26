@@ -50,7 +50,7 @@
     <string name="binding_spell_fallback">Da się też przytrzymaniem 1 — siatka na klawiaturze o tym mówi.</string>
     <string name="binding_delete">Usuwanie</string>
     <string name="binding_delete_prompt">Naciśnij klawisz, którym chcesz usuwać.</string>
-    <string name="binding_delete_fallback">BACK i tak usuwa, dopóki słowo jest w trakcie pisania.</string>
+    <string name="binding_delete_fallback">Góra i tak kasuje, zawsze. Przypisz klawisz tylko wtedy, gdy wolisz nie sięgać po d-pad.</string>
     <string name="binding_language">Zmiana języka</string>
     <string name="binding_language_prompt">Naciśnij klawisz, którym chcesz zmieniać język.</string>
     <string name="binding_language_fallback">Przydaje się dopiero przy więcej niż jednym języku.</string>
@@ -94,7 +94,6 @@
     <string name="strip_hint_language">Język</string>
     <string name="strip_commit_keys">OK · 0 dodaje spację</string>
     <string name="strip_fallback_spell">przytrzymaj 1</string>
-    <string name="strip_fallback_delete">BACK</string>
     <string name="strip_fallback_language">nieprzypisany</string>
 
     <string name="hint_keypad">Siatka klawiszy</string>

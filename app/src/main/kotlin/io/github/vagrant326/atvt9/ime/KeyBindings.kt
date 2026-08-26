@@ -55,10 +55,10 @@ sealed interface Action {
  * The user's `TEXT` key sits where a phone has `*` and reports keycode 300, well outside the
  * standard range — nothing in the app could have guessed that.
  *
- * All five are optional. Spelling is also a held `1`, deleting is `BACK` while a word is in
- * progress, the language switch does nothing with one language enabled, and the digit mode
- * turns itself on in a numeric field. The trigger is the exception: it cannot be reached any
- * other way, because the keyboard is not on screen at the moment it is needed.
+ * All five are optional. Spelling is also a held `1`, deleting is `DPAD_UP` unconditionally, the
+ * language switch does nothing with one language enabled, and the digit mode turns itself on in a
+ * numeric field. The trigger is the exception: it cannot be reached any other way, because the
+ * keyboard is not on screen at the moment it is needed.
  */
 data class CustomKeys(
     val trigger: Int,
@@ -79,9 +79,10 @@ object KeyBindings {
      * `0`-`9` *are* the keyboard here, so a remote with number keys gets a keyboard and a remote
      * without one gets nothing. `docs/00-overview.md` §3 relaxes C5 for exactly this reason.
      *
-     * The whole d-pad is reserved including up and down, which this list used to omit. They
-     * walk the candidates, so offering them as bindings would let the user assign away the one
-     * gesture the method cannot work without.
+     * The whole d-pad is reserved including up and down. Left, right and CHANNEL_UP/DOWN walk
+     * the candidates, so offering them as bindings would let the user assign away the one gesture
+     * the method cannot work without; up deletes and down is inert outside a word, and an arrow
+     * that became a function while its neighbours still navigated would be a trap either way.
      */
     val RESERVED: Set<Int> = buildSet {
         addAll(KeyEvent.KEYCODE_0..KeyEvent.KEYCODE_9)
@@ -99,9 +100,11 @@ object KeyBindings {
      * @param repeatCount straight from the [KeyEvent]. Only `1` counts as a hold; later repeats
      *   are swallowed, so one hold is one action rather than a rate. That is what keeps a held
      *   caret from crossing the whole field — Android repeats at roughly twenty a second.
-     * @param composing whether a word is in progress. `BACK` and the arrows mean something only
-     *   then — outside a word they belong to whatever is behind the keyboard, and a keyboard
-     *   that eats the d-pad on a TV leaves the whole device unnavigable.
+     * @param composing whether a word is in progress. `BACK` and the left and right arrows mean
+     *   something only then — outside a word they belong to whatever is behind the keyboard,
+     *   which is how the caret still works and how `BACK` still dismisses. That passthrough is
+     *   also the escape hatch: a keyboard that ate the whole d-pad on a TV would leave the device
+     *   unnavigable.
      * @param digits whether the number keys are typing digits rather than letters.
      *
      * Returns null for anything this keyboard has no use for, which the service passes through
@@ -141,7 +144,7 @@ object KeyBindings {
                 KeyEvent.KEYCODE_DPAD_RIGHT ->
                     if (composing) Action.Ignore else Action.WordJump(forward = true)
 
-                KeyEvent.KEYCODE_DEL -> Action.WordDelete
+                KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DEL -> Action.WordDelete
                 else -> Action.Ignore
             }
         }
@@ -180,13 +183,38 @@ object KeyBindings {
             // walk happens on most words. Up and down do the same job, and so do CHANNEL_UP and
             // CHANNEL_DOWN, which sit beside the numpad on the remotes that have one — a second
             // way in for a remote whose d-pad is awkward, never the only one.
-            KeyEvent.KEYCODE_DPAD_RIGHT, KeyEvent.KEYCODE_DPAD_DOWN,
-            KeyEvent.KEYCODE_CHANNEL_DOWN,
-            ->
-                if (composing) Action.Candidate(forward = true) else null
+            // Right walks the candidates and otherwise belongs to the editor, which moves the
+            // caret with it — the same thing a right arrow does everywhere else on the device.
+            KeyEvent.KEYCODE_DPAD_RIGHT -> if (composing) Action.Candidate(forward = true) else null
 
-            KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_CHANNEL_UP ->
-                if (composing) Action.Candidate(forward = false) else null
+            KeyEvent.KEYCODE_DPAD_LEFT -> if (composing) Action.Candidate(forward = false) else null
+
+            // Down walks the candidates and otherwise does nothing, and unlike right it is
+            // consumed either way. Left and right are passed through on purpose: the editor moves
+            // the caret with them, which is what the user wanted. Down has no such job — a
+            // single-line field has no caret to move downwards — so passing it through only threw
+            // the focus out of the field, which made the vertical axis read as broken once up
+            // started deleting.
+            //
+            // CHANNEL_UP and CHANNEL_DOWN go the same way, and for one more reason: they sit
+            // beside the numpad and are documented here as keyboard keys, so letting them fall
+            // through meant a stray press could change channel in the middle of a word.
+            KeyEvent.KEYCODE_DPAD_DOWN, KeyEvent.KEYCODE_CHANNEL_DOWN ->
+                if (composing) Action.Candidate(forward = true) else Action.Ignore
+
+            KeyEvent.KEYCODE_CHANNEL_UP ->
+                if (composing) Action.Candidate(forward = false) else Action.Ignore
+
+            // Up deletes, whether or not a word is in progress, and it is the only route that is
+            // always there. The others are all conditional in ways the user cannot see: the
+            // assigned key needs a spare button and a trip through the settings, `KEYCODE_DEL`
+            // needs a remote that has one and a television remote does not, and `BACK` only
+            // abandons a word that is already in progress.
+            //
+            // Up because that is what up already means in H4-Writer's edit mode. It cost the
+            // duplicate of the candidate walk that also sits on left and on CHANNEL_UP, which is
+            // the cheapest thing on the d-pad to give away.
+            KeyEvent.KEYCODE_DPAD_UP -> Action.Delete
 
             KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER -> Action.Commit
             KeyEvent.KEYCODE_DEL -> Action.Delete
