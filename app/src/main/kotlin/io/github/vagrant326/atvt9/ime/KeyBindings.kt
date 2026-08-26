@@ -42,6 +42,27 @@ sealed interface Action {
     /** Digits instead of letters, for a field that wants a number and says so. */
     data object ToggleDigits : Action
 
+    /**
+     * `abc` → `Abc` → `ABC` → `abc`, from holding `0`.
+     *
+     * Held rather than tapped because there is nothing left to tap: the reserved list below is the
+     * whole numeric row and the whole d-pad. `0` is the one key whose short press has no run to
+     * interfere with — it ends the word and writes a space — so it is the only one that can carry
+     * a second meaning without a letter press becoming ambiguous.
+     */
+    data object ToggleCase : Action
+
+    /**
+     * A key whose meaning is not settled yet: released, `0` is a space; held, it is [ToggleCase].
+     * Resolved in `T9ImeService.onKeyUp`.
+     *
+     * Android delivers a hold as a *second* key-down after the first, so a space written on the
+     * way down would already be in the field by the time the hold announced itself — and
+     * un-typing it is visible. `2`-`9` need no deferral: they only extend a sequence the engine
+     * can revise for free. Ported from LetterWise, which hit this first.
+     */
+    data class DeferToRelease(val keyCode: Int) : Action
+
     /** Abandon the word in progress if there is one, otherwise leave the key alone. */
     data object Back : Action
 
@@ -134,6 +155,11 @@ object KeyBindings {
             if (keyCode == KeyEvent.KEYCODE_1 && !digits) {
                 return Action.Spell
             }
+            // Nothing to capitalise in a digit field, and a gesture that silently does nothing is
+            // worse than one that is not there.
+            if (keyCode == KeyEvent.KEYCODE_0) {
+                return if (digits) Action.Ignore else Action.ToggleCase
+            }
             if (custom.delete != NO_KEY && keyCode == custom.delete) {
                 return Action.WordDelete
             }
@@ -176,7 +202,7 @@ object KeyBindings {
             in KeyEvent.KEYCODE_2..KeyEvent.KEYCODE_9 ->
                 Action.Digit('0' + (keyCode - KeyEvent.KEYCODE_0))
 
-            KeyEvent.KEYCODE_0 -> Action.Space
+            KeyEvent.KEYCODE_0 -> Action.DeferToRelease(keyCode)
             KeyEvent.KEYCODE_1 -> Action.Punctuation
 
             // Left and right are the candidate walk, because they are under the thumb and the

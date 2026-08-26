@@ -111,6 +111,10 @@
     <string name="strip_commit_keys">OK · 0 adds a space</string>
     <string name="strip_fallback_spell">hold 1</string>
     <string name="strip_delete_keys" translatable="false">▲</string>
+    <string name="strip_hint_case">Capitals</string>
+    <string name="strip_case_keys">Hold 0 · one word, then locked</string>
+    <string name="strip_case_once" translatable="false">Abc</string>
+    <string name="strip_case_locked" translatable="false">ABC</string>
     <string name="strip_fallback_language">not set</string>
 
     <string name="hint_keypad">Key grid</string>

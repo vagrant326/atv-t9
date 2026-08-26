@@ -8,6 +8,7 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.ExtractedTextRequest
 import io.github.vagrant326.atvt9.core.Composer
+import io.github.vagrant326.atvt9.core.LetterCase
 import io.github.vagrant326.atvt9.core.T9Engine
 import io.github.vagrant326.atvt9.model.DictionaryRepository
 import io.github.vagrant326.atvt9.model.Language
@@ -45,6 +46,16 @@ class T9ImeService : InputMethodService() {
     private var punctuationAt = -1
 
     /**
+     * Applied where the word reaches the field, never where it reaches the dictionary. Word-scoped
+     * rather than per-character: what is in flight here is a whole word the dictionary has not
+     * finished choosing, so there is no single character for a capital to attach to.
+     */
+    private var letterCase = LetterCase.LOWER
+
+    /** The key whose meaning is waiting on its release. See [Action.DeferToRelease]. */
+    private var deferredKey = KeyEvent.KEYCODE_UNKNOWN
+
+    /**
      * Digits instead of letters. Set by the field when it asks for a number, and by the user's
      * key otherwise — a numeric field that offered word candidates would be offering nonsense.
      */
@@ -71,6 +82,11 @@ class T9ImeService : InputMethodService() {
         engine.dictionary = dictionaries.dictionaryFor(preferences.activeLanguage)
         mayLearn = preferences.isLearning && isLearnable(info)
         showLanguages = false
+        deferredKey = KeyEvent.KEYCODE_UNKNOWN
+
+        // Like the digit mode below, the case belongs to the field and not to the app: a lock left
+        // on in one box must not follow the user into the next one.
+        letterCase = LetterCase.LOWER
 
         // A field that wants a number gets digits without being asked. Anything else starts in
         // letters even if the mode was left on: the mode belongs to the field, not to the app.
@@ -135,6 +151,23 @@ class T9ImeService : InputMethodService() {
         return handle(action)
     }
 
+    /**
+     * `0` commits nothing until it is released, because it is the only key here that means two
+     * things.
+     *
+     * Android delivers a hold as a second key-down, so a space written on the way down is already
+     * in the field by the time the hold announces itself as the case switch — and taking it back
+     * is visible in a field the user is looking at. `1` needs no deferral: its hold reaches
+     * spelling, which does not write anything, and its tap replaces its own mark in place.
+     */
+    override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
+        if (keyCode != deferredKey) {
+            return super.onKeyUp(keyCode, event)
+        }
+        deferredKey = KeyEvent.KEYCODE_UNKNOWN
+        return handle(Action.Space)
+    }
+
     private fun handle(action: Action): Boolean {
         when (action) {
             is Action.Ignore -> Unit
@@ -197,6 +230,21 @@ class T9ImeService : InputMethodService() {
             }
 
             is Action.Punctuation -> punctuate()
+
+            is Action.DeferToRelease -> deferredKey = action.keyCode
+
+            /**
+             * The word in progress is still the composing region, so the switch applies to it as
+             * well as to what follows. Pressing the case key after seeing the wrong case is the
+             * order people actually press them in, and making that a delete-and-retype would waste
+             * the one advantage a composing region has.
+             */
+            is Action.ToggleCase -> {
+                // The hold has claimed the press, so the release must not also write a space.
+                deferredKey = KeyEvent.KEYCODE_UNKNOWN
+                letterCase = letterCase.next()
+                setComposing()
+            }
 
             is Action.NextLanguage -> nextLanguage()
 
@@ -304,7 +352,7 @@ class T9ImeService : InputMethodService() {
         punctuationAt = -1
         val connection = currentInputConnection ?: return
         if (engine.isComposing) {
-            connection.setComposingText(engine.composing, 1)
+            connection.setComposingText(letterCase.apply(engine.composing), 1)
         } else {
             connection.finishComposingText()
         }
@@ -317,9 +365,14 @@ class T9ImeService : InputMethodService() {
         }
         val connection = currentInputConnection
         if (commit) {
+            // The engine is handed the word in lower case and learns it that way. The capital is
+            // applied to what goes into the *field* and never to what goes into the dictionary: a
+            // user dictionary holding both `jan` and `Jan` would answer one key sequence twice and
+            // carry the duplicate for ever, which is the sort of rot only the user can clear.
             val word = engine.commit(learn = mayLearn)
             if (word != null) {
-                connection?.commitText(word, 1)
+                connection?.commitText(letterCase.apply(word), 1)
+                letterCase = letterCase.afterWord()
             }
             // Cheap enough per word, and the alternative is losing everything learnt in a
             // session when the system reclaims the keyboard process without warning.
@@ -344,6 +397,7 @@ class T9ImeService : InputMethodService() {
                 trained = engine.dictionary != null,
                 language = languageLabel(),
                 hintMode = preferences.hintMode,
+                letterCase = letterCase,
                 digits = digits,
                 hasEditor = currentInputConnection != null,
                 learning = mayLearn,

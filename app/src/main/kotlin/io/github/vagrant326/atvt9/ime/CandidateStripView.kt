@@ -15,6 +15,7 @@ import android.widget.TextView
 import io.github.vagrant326.atvt9.R
 import io.github.vagrant326.atvt9.core.Candidate
 import io.github.vagrant326.atvt9.core.Keypad
+import io.github.vagrant326.atvt9.core.LetterCase
 import io.github.vagrant326.atvt9.settings.HintMode
 
 /**
@@ -87,6 +88,9 @@ class CandidateStripView(context: Context) : LinearLayout(context) {
         addView(hintLine(context.getString(R.string.strip_hint_spell), spellValue))
         addView(hintLine(context.getString(R.string.strip_hint_delete), deleteValue))
         addView(hintLine(context.getString(R.string.strip_hint_language), languageValue))
+        addView(hintLine(context.getString(R.string.strip_hint_case), hintValue().apply {
+            text = context.getString(R.string.strip_case_keys)
+        }))
     }
 
     /**
@@ -151,15 +155,37 @@ class CandidateStripView(context: Context) : LinearLayout(context) {
         }
     }
 
-    private fun cell(key: Char): TextView {
+    /**
+     * What one cell says, in the case that is currently in force.
+     *
+     * The grid is where the case is legible rather than merely announced. A tag reading `ABC`
+     * tells a user who already knows what the tag means; eight cells reading `ABCĄĆ` tell everyone
+     * else, and this is the surface that exists precisely because the remote itself says nothing.
+     */
+    private fun cellText(key: Char, letterCase: LetterCase): String {
+        if (key == ' ') {
+            return ""
+        }
         val letters = when (key) {
-            ' ' -> ""
             '0' -> context.getString(R.string.strip_space)
             '1' -> context.getString(R.string.strip_punctuation)
-            else -> Keypad.lettersOn(key)
+            // The whole run, not `letterCase.apply`. The case here is word-scoped, so applying it
+            // to a key's run would capitalise only the run's first letter and say nothing true
+            // about anything. What the grid answers is "could the next letter I type be a
+            // capital", and under either state above LOWER it could — the tag beside it is what
+            // distinguishes one word from all of them.
+            else -> if (letterCase == LetterCase.LOWER) {
+                Keypad.lettersOn(key)
+            } else {
+                LetterCase.LOCKED.apply(Keypad.lettersOn(key))
+            }
         }
+        return "$key\n$letters"
+    }
+
+    private fun cell(key: Char): TextView {
         return TextView(context).apply {
-            text = if (key == ' ') "" else "$key\n$letters"
+            text = cellText(key, LetterCase.LOWER)
             setTextColor(MUTED)
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
             gravity = Gravity.CENTER
@@ -242,8 +268,20 @@ class CandidateStripView(context: Context) : LinearLayout(context) {
 
             else -> ""
         }
-        status.text = message
-        status.visibility = if (message.isEmpty()) GONE else VISIBLE
+        // Named as well as drawn, because the two hint modes below the default hide the grid and a
+        // locked case has to survive turning the grid off.
+        val caseTag = if (!state.hasEditor) {
+            ""
+        } else {
+            when (state.letterCase) {
+                LetterCase.LOWER -> ""
+                LetterCase.ONCE -> context.getString(R.string.strip_case_once)
+                LetterCase.LOCKED -> context.getString(R.string.strip_case_locked)
+            }
+        }
+        val line = listOf(caseTag, message).filter { it.isNotEmpty() }.joinToString(" · ")
+        status.text = line
+        status.visibility = if (line.isEmpty()) GONE else VISIBLE
 
         // Digits are deterministic, so the grid has nothing to explain and the results
         // underneath get the room back.
@@ -276,6 +314,7 @@ class CandidateStripView(context: Context) : LinearLayout(context) {
         // press they just made registered on the key they meant.
         val last = state.sequence.lastOrNull()
         for ((key, cell) in keypadCells) {
+            cell.text = cellText(key, state.letterCase)
             cell.setTextColor(if (key == last) ACCENT else MUTED)
         }
     }
@@ -329,6 +368,7 @@ data class StripState(
     val trained: Boolean,
     val language: String,
     val hintMode: HintMode,
+    val letterCase: LetterCase,
     val digits: Boolean,
     val hasEditor: Boolean,
     val learning: Boolean,

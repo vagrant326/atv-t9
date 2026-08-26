@@ -92,6 +92,8 @@
     <string name="strip_hint_spell">Literowanie</string>
     <string name="strip_hint_delete">Kasowanie</string>
     <string name="strip_hint_language">Język</string>
+    <string name="strip_hint_case">Wielkie</string>
+    <string name="strip_case_keys">Przytrzymaj 0 · jedno słowo, potem na stałe</string>
     <string name="strip_commit_keys">OK · 0 dodaje spację</string>
     <string name="strip_fallback_spell">przytrzymaj 1</string>
     <string name="strip_fallback_language">nieprzypisany</string>
