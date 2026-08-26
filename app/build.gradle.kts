@@ -7,6 +7,11 @@ android {
     namespace = "io.github.vagrant326.atvt9"
     compileSdk = 35
 
+    // Pinned to what the dev image installs. AGP 8.7.3 defaults to 34.0.0, which the image does
+    // not carry, so every container was silently re-downloading it into a filesystem that dies
+    // with the container — and a build with no network failed outright.
+    buildToolsVersion = "35.0.0"
+
     defaultConfig {
         applicationId = "io.github.vagrant326.atvt9"
         minSdk = 23
