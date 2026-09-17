@@ -27,9 +27,9 @@ on:
         required: true
         type: string
       bump:
-        description: 'patch, minor or major'
+        description: 'minor or major. Production only — a dev build counts its own patch'
         required: false
-        default: patch
+        default: minor
         type: string
 
 jobs:
@@ -48,30 +48,50 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v6
 
-      # Each channel counts its own versions. github.run_number is per-workflow runner state:
-      # rename this file and it resets to 1, versionCode goes backwards, and Android refuses
+      # Production owns MAJOR and MINOR; a dev build is the nth one since the production
+      # release it sits on, and that n is the whole of its PATCH. So `dev-0.2.7` reads as
+      # "seven dev builds past 0.2", which is the question actually being asked when a TV
+      # shows one number and a release page another. Production always ends in `.0`.
+      #
+      # Both channels derive from the `v*` tags, so the two never drift apart. github.run_number
+      # would have been the obvious counter and is not usable: it is per-workflow runner state,
+      # so renaming this file resets it to 1, versionCode goes backwards, and Android refuses
       # every later update with nothing obvious to blame.
       - name: Resolve next version
         id: v
         env:
           PREFIX: ${{ inputs.tag-prefix }}
+          CHANNEL: ${{ inputs.channel }}
           BUMP: ${{ inputs.bump }}
         run: |
           set -eu
-          LATEST=$(git tag --list "$PREFIX[0-9]*.[0-9]*.[0-9]*" --sort=-v:refname | head -1)
-          if [ -z "$LATEST" ]; then
-            LATEST="${PREFIX}0.0.0"
-            echo "No tags for this channel yet, starting from $LATEST"
+          RELEASED=$(git tag --list "v[0-9]*.[0-9]*.[0-9]*" --sort=-v:refname | head -1)
+          if [ -z "$RELEASED" ]; then
+            MAJOR=0
+            MINOR=0
+            echo "Nothing released to production yet, counting from 0.0"
+          else
+            CURRENT="${RELEASED#v}"
+            MAJOR="${CURRENT%%.*}"; REST="${CURRENT#*.}"
+            MINOR="${REST%%.*}"
           fi
-          CURRENT="${LATEST#$PREFIX}"
-          MAJOR="${CURRENT%%.*}"; REST="${CURRENT#*.}"
-          MINOR="${REST%%.*}"; PATCH="${REST#*.}"
-          case "$BUMP" in
-            major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
-            minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
-            patch) PATCH=$((PATCH + 1)) ;;
-            *) echo "::error::Unknown bump '$BUMP'"; exit 1 ;;
-          esac
+
+          if [ "$CHANNEL" = "prod" ]; then
+            case "$BUMP" in
+              major) MAJOR=$((MAJOR + 1)); MINOR=0 ;;
+              minor) MINOR=$((MINOR + 1)) ;;
+              *) echo "::error::Production raises minor or major, not '$BUMP'"; exit 1 ;;
+            esac
+            PATCH=0
+          else
+            LATEST_DEV=$(git tag --list "dev-$MAJOR.$MINOR.[0-9]*" --sort=-v:refname | head -1)
+            if [ -z "$LATEST_DEV" ]; then
+              PATCH=1
+            else
+              PATCH=$(( ${LATEST_DEV##*.} + 1 ))
+            fi
+          fi
+
           if [ "$MINOR" -gt 99 ] || [ "$PATCH" -gt 99 ]; then
             echo "::error::MINOR and PATCH must stay below 100 or versionCode stops increasing"
             exit 1
@@ -84,7 +104,7 @@ jobs:
           echo "tag=$PREFIX$NAME" >> "$GITHUB_OUTPUT"
           echo "name=$NAME" >> "$GITHUB_OUTPUT"
           echo "code=$((MAJOR * 10000 + MINOR * 100 + PATCH))" >> "$GITHUB_OUTPUT"
-          echo "Releasing $PREFIX$NAME (was $LATEST, bump=$BUMP)"
+          echo "Releasing $PREFIX$NAME (production is at ${RELEASED:-none})"
 
       - name: Check
         run: ./gradlew --no-daemon check

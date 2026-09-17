@@ -2,6 +2,10 @@ name: Release
 
 # A push to main is a production release. There is no separate tagging step, and nothing lands
 # on main that is not meant to ship - which in practice means a pull request from develop.
+#
+# Production owns the minor, and raises it on every release: a release is a batch of dev builds
+# that proved themselves, which is exactly the unit a minor is for here. Major is for a change
+# that costs the user their motor memory, and that one is dispatched by hand.
 on:
   push:
     branches: [main]
@@ -10,9 +14,9 @@ on:
       bump:
         description: 'Which part of the version to raise'
         required: true
-        default: patch
+        default: minor
         type: choice
-        options: [patch, minor, major]
+        options: [minor, major]
 
 permissions:
   contents: write
@@ -31,4 +35,4 @@ jobs:
       flavour: Prod
       asset: atv-t9.apk
       alias: latest
-      bump: ${{ github.event.inputs.bump || 'patch' }}
+      bump: ${{ github.event.inputs.bump || 'minor' }}

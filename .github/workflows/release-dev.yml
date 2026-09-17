@@ -3,17 +3,14 @@ name: Release dev
 # Every push to develop publishes a dev build. It installs as its own application, alongside
 # whatever is on the TV from main, so an experiment that misbehaves does not take the working
 # keyboard with it.
+#
+# There is nothing to choose when releasing one: the version is the production version it sits
+# on, plus a patch counting the dev builds since. Offering a bump here would only let the two
+# channels drift apart.
 on:
   push:
     branches: [develop]
   workflow_dispatch:
-    inputs:
-      bump:
-        description: 'Which part of the version to raise'
-        required: true
-        default: patch
-        type: choice
-        options: [patch, minor, major]
 
 permissions:
   contents: write
@@ -32,4 +29,3 @@ jobs:
       flavour: Dev
       asset: atv-t9-dev.apk
       alias: latest-dev
-      bump: ${{ github.event.inputs.bump || 'patch' }}
