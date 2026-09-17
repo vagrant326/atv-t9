@@ -112,7 +112,11 @@ class CandidateStripView(context: Context) : LinearLayout(context) {
     init {
         orientation = VERTICAL
         setBackgroundColor(BACKGROUND)
-        setPadding(dp(20), dp(12), dp(20), dp(12))
+        // The Android TV safe area, five percent of each axis. Measured on the television this
+        // was written for: it never displays about eleven dp of its own bottom edge, whatever
+        // Android believes it put there. The twelve dp this used to have was one dp clear of
+        // losing the `0` row — LetterWise had eight and lost it.
+        setPadding(dp(28), dp(12), dp(28), dp(27))
         buildKeypad()
 
         addView(
