@@ -200,20 +200,27 @@ class T9ImeService : InputMethodService() {
     }
 
     /**
-     * `0` commits nothing until it is released, because it is the only key here that means two
-     * things.
+     * `0` and `1` commit nothing until they are released, because they are the two keys here that
+     * mean more than one thing.
      *
-     * Android delivers a hold as a second key-down, so a space written on the way down is already
-     * in the field by the time the hold announces itself as the case switch — and taking it back
-     * is visible in a field the user is looking at. `1` needs no deferral: its hold reaches
-     * spelling, which does not write anything, and its tap replaces its own mark in place.
+     * Android delivers a hold as a second key-down, so whatever the tap did has already happened
+     * by the time the hold announces itself. `0` wrote a space, which then had to be taken back
+     * in front of the user. `1` was worse: its tap commits the word in progress before writing a
+     * mark, so the hold that was meant to reach spelling found no word to spell and opened the
+     * marks instead — which is the state "hold 1 to spell it" was promising to escape.
      */
     override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
         if (keyCode != deferredKey) {
             return super.onKeyUp(keyCode, event)
         }
         deferredKey = KeyEvent.KEYCODE_UNKNOWN
-        return handle(Action.Space)
+        return handle(
+            when {
+                keyCode != KeyEvent.KEYCODE_1 -> Action.Space
+                digits -> Action.Digit('1')
+                else -> Action.Punctuation
+            }
+        )
     }
 
     private fun handle(action: Action): Boolean {
@@ -228,6 +235,8 @@ class T9ImeService : InputMethodService() {
             is Action.Ignore -> Unit
 
             is Action.ToggleSymbols -> {
+                // The hold has claimed the press, so the release must not also write a mark.
+                deferredKey = KeyEvent.KEYCODE_UNKNOWN
                 finishWord(commit = true)
                 val entering = !symbols
                 leaveSymbols()
@@ -289,6 +298,9 @@ class T9ImeService : InputMethodService() {
             }
 
             is Action.Spell -> {
+                // As above: reached by holding `1`, whose release would otherwise punctuate the
+                // word the user has just asked to spell.
+                deferredKey = KeyEvent.KEYCODE_UNKNOWN
                 engine.spell()
                 setComposing()
             }
@@ -318,6 +330,8 @@ class T9ImeService : InputMethodService() {
             }
 
             is Action.ToggleDigits -> {
+                // Reached by holding `1` in the digits, whose release would otherwise type one.
+                deferredKey = KeyEvent.KEYCODE_UNKNOWN
                 finishWord(commit = true)
                 digits = !digits
             }

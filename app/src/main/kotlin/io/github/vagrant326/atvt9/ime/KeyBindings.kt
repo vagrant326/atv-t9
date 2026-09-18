@@ -77,13 +77,18 @@ sealed interface Action {
     data object ToggleSymbols : Action
 
     /**
-     * A key whose meaning is not settled yet: released, `0` is a space; held, it is [ToggleCase].
-     * Resolved in `T9ImeService.onKeyUp`.
+     * A key whose meaning is not settled yet: released, `0` is a space and `1` is a mark; held,
+     * they are [ToggleCase] and [Spell] or [ToggleSymbols]. Resolved in `T9ImeService.onKeyUp`.
      *
-     * Android delivers a hold as a *second* key-down after the first, so a space written on the
-     * way down would already be in the field by the time the hold announced itself — and
-     * un-typing it is visible. `2`-`9` need no deferral: they only extend a sequence the engine
-     * can revise for free. Ported from LetterWise, which hit this first.
+     * Android delivers a hold as a *second* key-down after the first, so anything the tap does
+     * has already happened by the time the hold announces itself. For `0` that was a space in the
+     * field, visible and then un-typed. For `1` it was worse and invisible: its tap commits the
+     * word in progress before writing a mark, so the hold arrived to find [composing] false and
+     * resolved to the marks instead of to spelling — every time, which made "hold 1 to spell it"
+     * an instruction that has never once worked.
+     *
+     * `2`-`9` need no deferral: they only extend a sequence the engine can revise for free.
+     * Ported from LetterWise, which hit this first.
      */
     data class DeferToRelease(val keyCode: Int) : Action
 
@@ -249,6 +254,12 @@ object KeyBindings {
         // In digit mode the row is deterministic: every key is the digit printed on it, and
         // there is nothing to disambiguate, so no candidate walk and no spelling.
         if (digits && keyCode in KeyEvent.KEYCODE_0..KeyEvent.KEYCODE_9) {
+            // `1` carries the hold that leaves the digits, so here too it cannot write on the way
+            // down: the digit would be in the field before the hold announced itself. `0` holds
+            // nothing in this mode and the rest are unambiguous.
+            if (keyCode == KeyEvent.KEYCODE_1) {
+                return Action.DeferToRelease(keyCode)
+            }
             return Action.Digit('0' + (keyCode - KeyEvent.KEYCODE_0))
         }
 
@@ -256,8 +267,7 @@ object KeyBindings {
             in KeyEvent.KEYCODE_2..KeyEvent.KEYCODE_9 ->
                 Action.Digit('0' + (keyCode - KeyEvent.KEYCODE_0))
 
-            KeyEvent.KEYCODE_0 -> Action.DeferToRelease(keyCode)
-            KeyEvent.KEYCODE_1 -> Action.Punctuation
+            KeyEvent.KEYCODE_0, KeyEvent.KEYCODE_1 -> Action.DeferToRelease(keyCode)
 
             // Left and right are the candidate walk, because they are under the thumb and the
             // walk happens on most words. Up and down do the same job, and so do CHANNEL_UP and
