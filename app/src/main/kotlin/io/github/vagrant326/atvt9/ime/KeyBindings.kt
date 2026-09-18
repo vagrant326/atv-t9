@@ -155,6 +155,8 @@ object KeyBindings {
      *   also the escape hatch: a keyboard that ate the whole d-pad on a TV would leave the device
      *   unnavigable.
      * @param digits whether the number keys are typing digits rather than letters.
+     * @param symbols whether the mark layer is up, which changes what `0` means: in the layer it
+     *   is the way into the digits rather than a space.
      *
      * Returns null for anything this keyboard has no use for, which the service passes through
      * untouched rather than consuming.
@@ -165,6 +167,7 @@ object KeyBindings {
         custom: CustomKeys,
         composing: Boolean,
         digits: Boolean,
+        symbols: Boolean,
     ): Action? {
         val longPress = repeatCount == 1
 
@@ -180,7 +183,13 @@ object KeyBindings {
             // Spelling hangs off `1` and nothing else. It used to hang off all eight letter
             // keys, which made it invisible: an undiscoverable gesture on a key with no label
             // is the same as no feature. One key can be named on the grid, and is.
-            if (keyCode == KeyEvent.KEYCODE_1 && !digits) {
+            if (keyCode == KeyEvent.KEYCODE_1) {
+                // In digits the same hold is the way back out. It has to be: the mark layer can
+                // now turn the digits on, and a mode entered without an assigned key and left
+                // only by one would strand the user in it for the rest of the field.
+                if (digits) {
+                    return Action.ToggleDigits
+                }
                 // One hold, two meanings, chosen by whether there is a word to act on. Spelling
                 // is what the strip already advertises for a sequence with no match — "hold 1 to
                 // spell it" is shown *while composing* and nowhere else — so that is the state it
@@ -226,6 +235,15 @@ object KeyBindings {
         }
         if (custom.reveal != NO_KEY && keyCode == custom.reveal) {
             return Action.ToggleReveal
+        }
+
+        // The mark layer is where everything that is not a letter lives, and `0` is the one key
+        // in it that carries no marks — its space is what the layer was entered to avoid anyway.
+        // Without this the digits are reachable only from an assigned key, which is unassigned
+        // out of the box, and a password field is `TYPE_CLASS_TEXT`, so it never switches by
+        // itself: a fresh install could not type `Tv!2026` at all.
+        if (symbols && keyCode == KeyEvent.KEYCODE_0) {
+            return Action.ToggleDigits
         }
 
         // In digit mode the row is deterministic: every key is the digit printed on it, and

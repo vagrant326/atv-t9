@@ -85,7 +85,7 @@
     <string name="strip_no_editor">Tutaj nie ma gdzie pisać. Otwórz najpierw pole wyszukiwania.</string>
     <string name="strip_spell_only">LITEROWANIE</string>
     <string name="strip_no_match_only">Żadne słowo nie pasuje — przytrzymaj 1 i przeliteruj.</string>
-    <string name="strip_digits">CYFRY</string>
+    <string name="strip_digits">CYFRY — przytrzymaj 1, żeby wrócić do liter</string>
     <string name="strip_password">HASŁO — nie pokazujemy go tutaj i nie zapamiętujemy</string>
     <string name="strip_password_shown">HASŁO — widoczne, dopóki nie naciśniesz tego klawisza jeszcze raz</string>
 
@@ -98,7 +98,7 @@
     <string name="strip_case_keys">Przytrzymaj 0 · jedno słowo, potem na stałe</string>
     <string name="strip_hint_symbols">Znaki</string>
     <string name="strip_symbol_keys">Przytrzymaj 1 między słowami · wszystkie 32</string>
-    <string name="strip_symbols">ZNAKI — naciśnij klawisz, naciśnij znowu, żeby zmienić</string>
+    <string name="strip_symbols">ZNAKI — naciśnij klawisz, naciśnij znowu, żeby zmienić · 0 to cyfry</string>
     <string name="strip_commit_keys">OK · 0 dodaje spację</string>
     <string name="strip_fallback_spell">przytrzymaj 1</string>
     <string name="strip_fallback_language">nieprzypisany</string>

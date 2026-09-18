@@ -53,7 +53,8 @@ in the programme. Neither figure describes the keyboard on its own, which is why
 | `0` | Finish the word and add a space. |
 | `1` | Cycle `. , - ' & : /`, replacing in place. |
 | hold `0` | Capitals: `abc` → `Abc` → `ABC`. Word-scoped, because a whole word is what is in flight. |
-| hold `1` | Inside a word, spell it out letter by letter, for anything the dictionary lacks. Outside one, all thirty-two QWERTY marks on `2`–`9`, four to a key, for one mark. |
+| hold `1` | Inside a word, spell it out letter by letter, for anything the dictionary lacks. Outside one, all thirty-two QWERTY marks on `2`–`9`, four to a key, for one mark. In the digits, back to letters. |
+| `0` in the marks | Digits, one press per key until a held `1` brings the letters back. |
 | hold `◀` `▶` | The caret, a word at a time. Outside a word only — inside one the arrows are the candidate walk. |
 | hold `▲` | Delete back to the start of the word. |
 | `BACK` | Abandon the word in progress. Otherwise left alone. |
@@ -67,8 +68,10 @@ in prediction: a password is in no dictionary, so every candidate offered agains
 the user would pay a hold of `1` per run to escape them. The strip shows one dot per character
 instead of the letters, because the field's own masking is worth little while the keyboard prints
 the same word across the television. Capitals come from the held `0` and every QWERTY mark from
-the held `1`; the digits come from the digit mode, which a numeric field turns on by itself and
-which a password field does not, so that is the one function here that wants a button of its own.
+the held `1`; the digits come from the mark layer, where `0` switches to them and a held `1`
+switches back. That route exists because a password field is `TYPE_CLASS_TEXT` and so never turns
+the digits on by itself, and the assignable digit key is unassigned out of the box — which left a
+fresh install unable to type a password with a number in it at all.
 
 A dotted-out password that went wrong four characters ago cannot be checked anywhere, which is
 its own reason not to finish typing it. So one assignable key shows the field on the strip and
@@ -80,8 +83,8 @@ show-the-keyboard, spell, delete, switch-language, digit mode and show-the-passw
 have no other route: the trigger, because the keyboard is not on screen at the moment it is
 needed, and the password one, because both the field and the strip are hiding the text on
 purpose. The other four are comforts, since spelling is also a held `1`, `▲` already deletes, the
-language switch does nothing with one language enabled and a numeric field turns the digits on by
-itself. Remotes disagree about which keys exist and about what they
+language switch does nothing with one language enabled and the digits are also `0` in the mark
+layer, besides turning themselves on in a numeric field. Remotes disagree about which keys exist and about what they
 report — the key this project most wanted turned out to be keycode 300.
 
 **Only the trigger is listened for while the keyboard is hidden**, and it is unassigned by

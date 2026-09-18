@@ -193,6 +193,7 @@ class T9ImeService : InputMethodService() {
             preferences.customKeys,
             engine.isComposing,
             digits,
+            symbols,
         ) ?: return super.onKeyDown(keyCode, event)
 
         return handle(action)

@@ -98,7 +98,7 @@
     <string name="strip_no_editor">Nothing here takes text. Open a search box first.</string>
     <string name="strip_spell_only">SPELLING</string>
     <string name="strip_no_match_only">No word for these keys — hold 1 to spell it.</string>
-    <string name="strip_digits">DIGITS</string>
+    <string name="strip_digits">DIGITS — hold 1 for letters again</string>
     <string name="strip_password">PASSWORD — hidden here, and never remembered</string>
     <string name="strip_password_shown">PASSWORD — on screen until you press that key again</string>
     <string name="strip_space" translatable="false">␣</string>
@@ -117,7 +117,7 @@
     <string name="strip_case_keys">Hold 0 · one word, then locked</string>
     <string name="strip_hint_symbols">Marks</string>
     <string name="strip_symbol_keys">Hold 1 between words · all 32</string>
-    <string name="strip_symbols">MARKS — tap a key, tap again to change it</string>
+    <string name="strip_symbols">MARKS — tap a key, tap again to change it · 0 for digits</string>
     <string name="strip_case_once" translatable="false">Abc</string>
     <string name="strip_case_locked" translatable="false">ABC</string>
     <string name="strip_fallback_language">not set</string>
