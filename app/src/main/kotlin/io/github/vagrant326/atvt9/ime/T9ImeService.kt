@@ -45,6 +45,18 @@ class T9ImeService : InputMethodService() {
     private var mayLearn = true
 
     /**
+     * What this keyboard has written into the word standing at the caret, across however many
+     * pieces it took to get there, and still open until something ends it.
+     *
+     * A word the dictionary has never heard of is typed in sessions - `spa`, accept, `jder`,
+     * accept - because each piece is something the dictionary can offer and the whole is not.
+     * Learning each piece as it was accepted filled the user dictionary with syllables and never
+     * recorded the word, so the next time cost exactly the same. The pieces are held here until
+     * something ends the word, and the join is what is learnt.
+     */
+    private val openWord = StringBuilder()
+
+    /**
      * Whether the strip has to hide what is being typed, because the field is hiding it too.
      *
      * Only a masked password field sets this. It is about the room rather than about the device:
@@ -113,6 +125,7 @@ class T9ImeService : InputMethodService() {
         mayLearn = preferences.isLearning && isLearnable(info)
         showLanguages = false
         deferredKey = KeyEvent.KEYCODE_UNKNOWN
+        openWord.setLength(0)
 
         val variation = info?.inputType?.and(InputType.TYPE_MASK_VARIATION) ?: 0
         val classification = info?.inputType?.and(InputType.TYPE_MASK_CLASS) ?: 0
@@ -150,6 +163,9 @@ class T9ImeService : InputMethodService() {
 
     override fun onFinishInput() {
         finishWord(commit = false)
+        // Leaving the field ends the word whether or not a separator ever arrived, which is the
+        // common case in a search box: the last thing typed is submitted, not spaced.
+        learnOpenWord()
         userWords.flush()
         super.onFinishInput()
     }
@@ -248,8 +264,11 @@ class T9ImeService : InputMethodService() {
                     cycleMark(action.digit)
                 } else if (digits) {
                     // Deterministic: nothing to disambiguate, so it goes straight into the field
-                    // rather than through the engine, which would offer words for it.
+                    // rather than through the engine, which would offer words for it. A digit
+                    // ends the word too: the dictionary holds nothing carrying one, so a run
+                    // continued through it could never be learnt at all.
                     finishWord(commit = true)
+                    learnOpenWord()
                     currentInputConnection?.commitText(action.digit.toString(), 1)
                 } else {
                     engine.press(action.digit, System.currentTimeMillis())
@@ -271,13 +290,18 @@ class T9ImeService : InputMethodService() {
 
             is Action.Space -> {
                 finishWord(commit = true)
+                learnOpenWord()
                 currentInputConnection?.commitText(" ", 1)
             }
 
+            // OK accepts a piece and leaves the word open, which is what makes a word the
+            // dictionary lacks typable at all. With nothing pending there is no piece to accept,
+            // so the word is over and this is the field's own key.
             is Action.Commit -> {
                 val wasComposing = engine.isComposing
                 finishWord(commit = true)
                 if (!wasComposing) {
+                    learnOpenWord()
                     // Nothing pending, so this press belongs to the field: a search box wants
                     // to search, and swallowing it would strand the user on a filled-in query.
                     return sendDefaultEditorAction(true)
@@ -287,6 +311,7 @@ class T9ImeService : InputMethodService() {
             is Action.Delete -> {
                 if (!engine.backspace()) {
                     currentInputConnection?.deleteSurroundingText(1, 0)
+                    openWord.setLength((openWord.length - 1).coerceAtLeast(0))
                 } else {
                     setComposing()
                 }
@@ -333,6 +358,7 @@ class T9ImeService : InputMethodService() {
                 // Reached by holding `1` in the digits, whose release would otherwise type one.
                 deferredKey = KeyEvent.KEYCODE_UNKNOWN
                 finishWord(commit = true)
+                learnOpenWord()
                 digits = !digits
             }
 
@@ -351,11 +377,14 @@ class T9ImeService : InputMethodService() {
              */
             is Action.WordJump -> {
                 finishWord(commit = true)
+                learnOpenWord()
                 jumpWord(action.forward)
             }
 
+            // The word is being destroyed rather than finished, so it goes with it unlearnt.
             is Action.WordDelete -> {
                 finishWord(commit = false)
+                openWord.setLength(0)
                 deleteWord()
             }
         }
@@ -443,6 +472,7 @@ class T9ImeService : InputMethodService() {
             currentInputConnection?.deleteSurroundingText(1, 0)
         } else {
             finishWord(commit = true)
+            learnOpenWord()
             symbolKey = digit
             symbolAt = 0
         }
@@ -454,6 +484,7 @@ class T9ImeService : InputMethodService() {
         // other action breaks the run, and this is the one caller that has to survive it.
         val next = if (punctuationAt < 0) 0 else (punctuationAt + 1) % PUNCTUATION.length
         finishWord(commit = true)
+        learnOpenWord()
         val connection = currentInputConnection ?: return
         if (next > 0) {
             connection.deleteSurroundingText(1, 0)
@@ -470,9 +501,39 @@ class T9ImeService : InputMethodService() {
             return
         }
         finishWord(commit = true)
+        learnOpenWord()
         val next = enabled[(enabled.indexOf(preferences.activeLanguage) + 1) % enabled.size]
         preferences.activeLanguage = next
         engine.dictionary = dictionaries.dictionaryFor(next)
+    }
+
+    /**
+     * Learns the word standing at the caret and closes it.
+     *
+     * Called where a word ends rather than where a piece is accepted: a space, a mark, a digit,
+     * a caret jump, a language change, submitting, leaving the field.
+     *
+     * The record of what was typed is kept here, but what is learnt is checked against the
+     * editor first. The bare arrows fall through to whatever is behind the keyboard when no word
+     * is in progress, and the editor moves the caret with them without telling this service - so
+     * an open word can have been left behind somewhere else in the field, and gluing it to
+     * whatever was typed next would invent a word nobody wrote. If the text at the caret is no
+     * longer what was recorded, nothing is learnt.
+     */
+    private fun learnOpenWord() {
+        val text = openWord.toString()
+        openWord.setLength(0)
+        if (!mayLearn || text.isEmpty()) {
+            return
+        }
+        if (currentInputConnection?.getTextBeforeCursor(text.length, 0)?.toString() != text) {
+            return
+        }
+        if (userWords.dictionary.learn(text)) {
+            // Cheap enough per word, and the alternative is losing everything learnt in a
+            // session when the system reclaims the keyboard process without warning.
+            userWords.flush()
+        }
     }
 
     /** Shows the pending word inline, so the field always reads as what committing would leave. */
@@ -497,14 +558,15 @@ class T9ImeService : InputMethodService() {
             // applied to what goes into the *field* and never to what goes into the dictionary: a
             // user dictionary holding both `jan` and `Jan` would answer one key sequence twice and
             // carry the duplicate for ever, which is the sort of rot only the user can clear.
-            val word = engine.commit(learn = mayLearn)
+            // Never learnt here: a commit ends a piece, and a piece is not yet a word. See
+            // [openWord] and [learnOpenWord], where the join reaches the dictionary.
+            val word = engine.commit(learn = false)
             if (word != null) {
-                connection?.commitText(letterCase.apply(word), 1)
+                val text = letterCase.apply(word)
+                connection?.commitText(text, 1)
+                openWord.append(text)
                 letterCase = letterCase.afterWord()
             }
-            // Cheap enough per word, and the alternative is losing everything learnt in a
-            // session when the system reclaims the keyboard process without warning.
-            userWords.flush()
         } else {
             engine.reset()
             connection?.finishComposingText()

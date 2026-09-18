@@ -49,7 +49,7 @@ in the programme. Neither figure describes the keyboard on its own, which is why
 | `◀` `▶` | Walk the candidates, back and forward. Only while a word is in progress — outside one they fall through to the editor, which moves the caret. |
 | `▼` `CH▾` / `CH▴` | The same walk, forward and back, for a remote whose d-pad is awkward. Consumed either way: a one-line field has no caret to move downwards, and a stray `CH` press must not change channel mid-word. |
 | `▲` | Delete. Always, and it is the only delete that is never conditional on anything. |
-| `OK` | Finish the word. With nothing pending, submits the field. |
+| `OK` | Accept the word. Nothing is written between it and what follows, so the next presses can continue it. With nothing pending, submits the field. |
 | `0` | Finish the word and add a space. |
 | `1` | Cycle `. , - ' & : /`, replacing in place. |
 | hold `0` | Capitals: `abc` → `Abc` → `ABC`. Word-scoped, because a whole word is what is in flight. |
@@ -94,6 +94,15 @@ default. Consuming d-pad events while hidden is what once left a television unna
 
 The user dictionary holds words and a use count. Not the text they appeared in, not the field
 they were typed into, not when. There is nowhere in the format to put anything else.
+
+**A word is learnt when it ends, not when a piece of it is accepted.** A word the dictionary has
+never heard of is typed in sessions — `spa`, accept, `jder`, accept — because each piece is
+something the dictionary can offer and the whole is not. What is kept is `spajder`: the pieces
+were the route, not the destination, and a dictionary filling up with syllables would answer the
+same sequence with the same three fragments for ever. So the join is held until a space, a mark, a
+digit, a caret jump or leaving the field says the word is over, and only then does it reach the
+dictionary — checked against the editor first, because the arrows fall through to the field and
+the word may no longer be where it was put.
 
 Nothing is learnt from a password field, a field that set `IME_FLAG_NO_PERSONALIZED_LEARNING`, a
 no-suggestions field, or an email or URL field. Learning can also be turned off entirely, and the
