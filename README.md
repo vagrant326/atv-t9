@@ -70,11 +70,18 @@ the same word across the television. Capitals come from the held `0` and every Q
 the held `1`; the digits come from the digit mode, which a numeric field turns on by itself and
 which a password field does not, so that is the one function here that wants a button of its own.
 
-Five keys are assignable from settings, captured from the remote rather than chosen from a list:
-show-the-keyboard, spell, delete, switch-language and digit mode. The trigger cannot be reached any
-other way, because the keyboard is not on screen at the moment it is needed; the middle three are
-comforts, since spelling is also a held `1`, `▲` already deletes and the language switch does
-nothing with one language enabled. Remotes disagree about which keys exist and about what they
+A dotted-out password that went wrong four characters ago cannot be checked anywhere, which is
+its own reason not to finish typing it. So one assignable key shows the field on the strip and
+shows it again pressed a second time — off by default, per field, and never on until the user
+asks for it, because a password on a television is visible to the whole room.
+
+Six keys are assignable from settings, captured from the remote rather than chosen from a list:
+show-the-keyboard, spell, delete, switch-language, digit mode and show-the-password. Two of them
+have no other route: the trigger, because the keyboard is not on screen at the moment it is
+needed, and the password one, because both the field and the strip are hiding the text on
+purpose. The other four are comforts, since spelling is also a held `1`, `▲` already deletes, the
+language switch does nothing with one language enabled and a numeric field turns the digits on by
+itself. Remotes disagree about which keys exist and about what they
 report — the key this project most wanted turned out to be keycode 300.
 
 **Only the trigger is listened for while the keyboard is hidden**, and it is unassigned by

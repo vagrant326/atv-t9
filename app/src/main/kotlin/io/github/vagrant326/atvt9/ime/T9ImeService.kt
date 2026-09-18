@@ -53,6 +53,14 @@ class T9ImeService : InputMethodService() {
      */
     private var masked = false
 
+    /**
+     * Whether the user has asked to see the masked field anyway.
+     *
+     * Per field and cleared when one opens, so a password left on screen in one box cannot follow
+     * the user into the next.
+     */
+    private var revealed = false
+
     private var punctuationAt = -1
 
     /**
@@ -121,6 +129,7 @@ class T9ImeService : InputMethodService() {
         // for the strip to hide.
         masked = engine.spellByDefault &&
             variation != InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+        revealed = false
 
         // Like the digit mode below, the case and the mark layer belong to the field and not to
         // the app: neither a lock nor a half-used layer may follow the user into the next box.
@@ -312,6 +321,14 @@ class T9ImeService : InputMethodService() {
                 digits = !digits
             }
 
+            // Nothing is hidden outside a masked field, so there the key does nothing rather than
+            // arming a state that would be found already on in the next password box.
+            is Action.ToggleReveal -> {
+                if (masked) {
+                    revealed = !revealed
+                }
+            }
+
             /**
              * The caret, a word at a time. The word in progress is committed first: leaving it
              * composing while the caret walks away puts the editor's composing region somewhere
@@ -483,6 +500,16 @@ class T9ImeService : InputMethodService() {
         if (!::strip.isInitialized) {
             return
         }
+        // Read from the editor rather than from a copy kept here, for the same reason the caret
+        // and the word delete do: the field owns the text and may hold a password this keyboard
+        // never typed - one the user pasted, or one a password manager filled in. An editor is
+        // free to refuse a masked field, and then the run in progress is all there is to show.
+        val revealText = if (masked && revealed) {
+            currentInputConnection?.getTextBeforeCursor(MAX_CONTEXT, 0)?.toString()
+                ?: letterCase.apply(engine.composing)
+        } else {
+            null
+        }
         strip.render(
             StripState(
                 candidates = engine.candidates,
@@ -499,6 +526,7 @@ class T9ImeService : InputMethodService() {
                 hasEditor = currentInputConnection != null,
                 learning = mayLearn,
                 masked = masked,
+                revealText = revealText,
                 customKeys = preferences.customKeys,
             )
         )

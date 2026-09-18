@@ -100,6 +100,7 @@
     <string name="strip_no_match_only">No word for these keys — hold 1 to spell it.</string>
     <string name="strip_digits">DIGITS</string>
     <string name="strip_password">PASSWORD — hidden here, and never remembered</string>
+    <string name="strip_password_shown">PASSWORD — on screen until you press that key again</string>
     <string name="strip_space" translatable="false">␣</string>
     <string name="strip_punctuation" translatable="false">.,-</string>
 
@@ -142,6 +143,9 @@
     <string name="binding_digits">Digits mode</string>
     <string name="binding_digits_prompt">Press the key that should switch between letters and digits.</string>
     <string name="binding_digits_fallback">A field that wants a number switches on its own, so this is only for typing a number into an ordinary field.</string>
+    <string name="binding_reveal">Show the password</string>
+    <string name="binding_reveal_prompt">Press the key that should show the password you are typing. The same key hides it again.</string>
+    <string name="binding_reveal_fallback">Nothing else does this. A password field hides what you type, in the field and on the keyboard, and this is the way to read it back before you submit it.</string>
 
     <string name="update_title">Updates</string>
     <string name="update_subtitle">T9 installs from its GitHub releases.</string>

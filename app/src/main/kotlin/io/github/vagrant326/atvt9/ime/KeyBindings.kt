@@ -43,6 +43,15 @@ sealed interface Action {
     data object ToggleDigits : Action
 
     /**
+     * Shows what is being typed into a password field, and hides it again.
+     *
+     * A toggle rather than a hold, because the reason to look is to read back a password the
+     * user is no longer sure of, and reading takes as long as it takes. It reveals only on the
+     * strip: the field's own masking belongs to the app that drew it.
+     */
+    data object ToggleReveal : Action
+
+    /**
      * `abc` → `Abc` → `ABC` → `abc`, from holding `0`.
      *
      * Held rather than tapped because there is nothing left to tap: the reserved list below is the
@@ -91,10 +100,13 @@ sealed interface Action {
  * The user's `TEXT` key sits where a phone has `*` and reports keycode 300, well outside the
  * standard range — nothing in the app could have guessed that.
  *
- * All five are optional. Spelling is also a held `1`, deleting is `DPAD_UP` unconditionally, the
- * language switch does nothing with one language enabled, and the digit mode turns itself on in a
- * numeric field. The trigger is the exception: it cannot be reached any other way, because the
- * keyboard is not on screen at the moment it is needed.
+ * All six are optional, but two of them have no second route. Spelling is also a held `1`,
+ * deleting is `DPAD_UP` unconditionally, the language switch does nothing with one language
+ * enabled, and the digit mode turns itself on in a numeric field. The trigger is the first
+ * exception: it cannot be reached any other way, because the keyboard is not on screen at the
+ * moment it is needed. Revealing a password is the second, and unassigned it simply does not
+ * happen — which is the right default for a thing whose whole job is to put a password on a
+ * television screen.
  */
 data class CustomKeys(
     val trigger: Int,
@@ -102,6 +114,7 @@ data class CustomKeys(
     val delete: Int,
     val language: Int,
     val digits: Int,
+    val reveal: Int,
 )
 
 object KeyBindings {
@@ -210,6 +223,9 @@ object KeyBindings {
         }
         if (custom.digits != NO_KEY && keyCode == custom.digits) {
             return Action.ToggleDigits
+        }
+        if (custom.reveal != NO_KEY && keyCode == custom.reveal) {
+            return Action.ToggleReveal
         }
 
         // In digit mode the row is deterministic: every key is the digit printed on it, and

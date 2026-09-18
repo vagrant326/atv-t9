@@ -87,6 +87,7 @@
     <string name="strip_no_match_only">Żadne słowo nie pasuje — przytrzymaj 1 i przeliteruj.</string>
     <string name="strip_digits">CYFRY</string>
     <string name="strip_password">HASŁO — nie pokazujemy go tutaj i nie zapamiętujemy</string>
+    <string name="strip_password_shown">HASŁO — widoczne, dopóki nie naciśniesz tego klawisza jeszcze raz</string>
 
     <string name="strip_hint_walk">Słowa</string>
     <string name="strip_hint_commit">Zatwierdź</string>
@@ -122,6 +123,9 @@
     <string name="binding_digits">Tryb cyfr</string>
     <string name="binding_digits_prompt">Naciśnij klawisz, który ma przełączać między literami a cyframi.</string>
     <string name="binding_digits_fallback">Pole, które chce liczby, przełącza się samo — to jest tylko do wpisania liczby w zwykłe pole.</string>
+    <string name="binding_reveal">Pokaż hasło</string>
+    <string name="binding_reveal_prompt">Naciśnij klawisz, który ma pokazywać wpisywane hasło. Ten sam klawisz chowa je z powrotem.</string>
+    <string name="binding_reveal_fallback">Nic innego tego nie zrobi. Pole hasła ukrywa to, co piszesz — i w polu, i na klawiaturze — a tędy można je odczytać przed wysłaniem.</string>
 
     <string name="update_title">Aktualizacje</string>
     <string name="update_subtitle">T9 instaluje się ze swoich wydań na GitHubie.</string>

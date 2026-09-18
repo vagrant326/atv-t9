@@ -253,7 +253,10 @@ class CandidateStripView(context: Context) : LinearLayout(context) {
             // the keypress landed, and it is the one thing about a password that is already on
             // screen in the field itself.
             state.masked -> words.addView(
-                chip("•".repeat(state.composing.length).ifEmpty { " " }, chosen = true)
+                chip(
+                    (state.revealText ?: "•".repeat(state.composing.length)).ifEmpty { " " },
+                    chosen = true,
+                )
             )
 
             state.spelling -> words.addView(chip(state.composing.ifEmpty { " " }, chosen = true))
@@ -274,7 +277,9 @@ class CandidateStripView(context: Context) : LinearLayout(context) {
 
             // Ahead of the digit and spelling lines, both of which are true in a password field
             // and neither of which is what the user needs told there.
-            state.masked -> context.getString(R.string.strip_password)
+            state.masked -> context.getString(
+                if (state.revealText == null) R.string.strip_password else R.string.strip_password_shown
+            )
             state.digits -> context.getString(R.string.strip_digits)
 
             // Spelling still types here — it is the only way to enter anything the dictionary
@@ -396,5 +401,8 @@ data class StripState(
     val hasEditor: Boolean,
     val learning: Boolean,
     val masked: Boolean,
+
+    /** What the masked field actually holds, when the user has pressed the key that shows it. */
+    val revealText: String?,
     val customKeys: CustomKeys,
 )

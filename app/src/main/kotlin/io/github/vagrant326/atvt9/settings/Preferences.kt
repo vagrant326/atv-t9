@@ -75,6 +75,17 @@ enum class Binding(
         R.string.binding_digits_prompt,
         R.string.binding_digits_fallback,
     ),
+
+    /**
+     * The only one of these with no second route, because it is the only one that undoes a rule
+     * rather than repeating a gesture: in a password field both the editor and the strip hide
+     * what is being typed, and without this there is nowhere to check it before submitting.
+     */
+    REVEAL(
+        R.string.binding_reveal,
+        R.string.binding_reveal_prompt,
+        R.string.binding_reveal_fallback,
+    ),
 }
 
 class Preferences(context: Context) {
@@ -145,6 +156,10 @@ class Preferences(context: Context) {
         get() = store.getInt(KEY_DIGITS_KEYCODE, KeyBindings.NO_KEY)
         set(value) = store.edit().putInt(KEY_DIGITS_KEYCODE, value).apply()
 
+    var revealKeyCode: Int
+        get() = store.getInt(KEY_REVEAL_KEYCODE, KeyBindings.NO_KEY)
+        set(value) = store.edit().putInt(KEY_REVEAL_KEYCODE, value).apply()
+
     /**
      * Defaults to the full grid. The remote has nothing printed on it, so a new user has no way
      * to know which key carries which letters — see [HintMode].
@@ -174,6 +189,7 @@ class Preferences(context: Context) {
             deleteKeyCode,
             languageKeyCode,
             digitsKeyCode,
+            revealKeyCode,
         )
 
     fun keyCodeFor(binding: Binding): Int = when (binding) {
@@ -182,6 +198,7 @@ class Preferences(context: Context) {
         Binding.DELETE -> deleteKeyCode
         Binding.LANGUAGE -> languageKeyCode
         Binding.DIGITS -> digitsKeyCode
+        Binding.REVEAL -> revealKeyCode
     }
 
     fun assign(binding: Binding, keyCode: Int) {
@@ -191,6 +208,7 @@ class Preferences(context: Context) {
             Binding.DELETE -> deleteKeyCode = keyCode
             Binding.LANGUAGE -> languageKeyCode = keyCode
             Binding.DIGITS -> digitsKeyCode = keyCode
+            Binding.REVEAL -> revealKeyCode = keyCode
         }
     }
 
@@ -203,6 +221,7 @@ class Preferences(context: Context) {
         const val KEY_DELETE_KEYCODE = "delete_keycode"
         const val KEY_LANGUAGE_KEYCODE = "language_keycode"
         const val KEY_DIGITS_KEYCODE = "digits_keycode"
+        const val KEY_REVEAL_KEYCODE = "reveal_keycode"
         const val KEY_HINT_MODE = "hint_mode"
         const val KEY_LEARNING = "learning"
     }
