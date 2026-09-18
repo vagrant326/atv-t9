@@ -99,6 +99,7 @@
     <string name="strip_spell_only">SPELLING</string>
     <string name="strip_no_match_only">No word for these keys — hold 1 to spell it.</string>
     <string name="strip_digits">DIGITS</string>
+    <string name="strip_password">PASSWORD — hidden here, and never remembered</string>
     <string name="strip_space" translatable="false">␣</string>
     <string name="strip_punctuation" translatable="false">.,-</string>
 

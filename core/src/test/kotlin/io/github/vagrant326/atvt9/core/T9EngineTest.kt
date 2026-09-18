@@ -116,6 +116,23 @@ class T9EngineTest {
     }
 
     @Test
+    fun `a field that spells by default is still spelling after a commit`() {
+        val engine = engine()
+        engine.spellByDefault = true
+        engine.reset()
+
+        engine.type("555")
+        assertEquals("l", engine.composing)
+        assertEquals("l", engine.commit(learn = false))
+
+        // The point of the flag: a password is several runs and the second one must not come
+        // back predicting, which is what a plain spell() would have done here.
+        assertEquals(Composer.SPELL, engine.mode)
+        engine.type("2")
+        assertEquals("a", engine.composing)
+    }
+
+    @Test
     fun `backspace walks back through the sequence`() {
         val engine = engine()
         engine.type("5677")

@@ -249,6 +249,13 @@ class CandidateStripView(context: Context) : LinearLayout(context) {
 
         words.removeAllViews()
         when {
+            // One dot per character rather than nothing at all: the length is what tells the user
+            // the keypress landed, and it is the one thing about a password that is already on
+            // screen in the field itself.
+            state.masked -> words.addView(
+                chip("•".repeat(state.composing.length).ifEmpty { " " }, chosen = true)
+            )
+
             state.spelling -> words.addView(chip(state.composing.ifEmpty { " " }, chosen = true))
             state.candidates.isEmpty() && state.sequence.isNotEmpty() ->
                 words.addView(chip(state.sequence, chosen = true, unresolved = true))
@@ -264,6 +271,10 @@ class CandidateStripView(context: Context) : LinearLayout(context) {
             !state.hasEditor -> context.getString(R.string.strip_no_editor)
             !state.trained -> context.getString(R.string.strip_untrained)
             state.symbols -> context.getString(R.string.strip_symbols)
+
+            // Ahead of the digit and spelling lines, both of which are true in a password field
+            // and neither of which is what the user needs told there.
+            state.masked -> context.getString(R.string.strip_password)
             state.digits -> context.getString(R.string.strip_digits)
 
             // Spelling still types here — it is the only way to enter anything the dictionary
@@ -384,5 +395,6 @@ data class StripState(
     val digits: Boolean,
     val hasEditor: Boolean,
     val learning: Boolean,
+    val masked: Boolean,
     val customKeys: CustomKeys,
 )

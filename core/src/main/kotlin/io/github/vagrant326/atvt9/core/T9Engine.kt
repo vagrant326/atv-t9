@@ -29,6 +29,17 @@ class T9Engine(
     var mode: Composer = Composer.WORD
         private set
 
+    /**
+     * Whether a word starts in [Composer.SPELL] rather than in [Composer.WORD].
+     *
+     * For a field whose contents cannot be in any dictionary, which in practice means a password:
+     * every candidate offered against one is wrong, so prediction there costs a hold of `1` per
+     * run and gives nothing back. It has to outlive a commit rather than being a one-shot like
+     * [spell], because a password is several runs — letters, then a mark, then digits — and each
+     * one would otherwise come back predicting.
+     */
+    var spellByDefault: Boolean = false
+
     /** Which candidate the strip has highlighted, and therefore what commit will produce. */
     var selected: Int = 0
         private set
@@ -152,7 +163,7 @@ class T9Engine(
         multitap.reset()
         cached = emptyList()
         selected = 0
-        mode = Composer.WORD
+        mode = if (spellByDefault) Composer.SPELL else Composer.WORD
     }
 
     private fun refresh() {

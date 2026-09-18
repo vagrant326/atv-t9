@@ -62,10 +62,13 @@ in the programme. Neither figure describes the keyboard on its own, which is why
 and that passthrough is the escape hatch: a keyboard that ate the whole d-pad on a television
 leaves the device unnavigable, which is not a hypothetical.
 
-**It types a password** — `Tv!2026` and the like. Capitals come from the held `0` and every
-QWERTY mark from the held `1`; the digits come from the digit mode, which a numeric field turns on
-by itself and which a password field does not, so that is the one function here that wants a
-button of its own.
+**It types a password** — `Tv!2026` and the like. A password field starts in spelling rather than
+in prediction: a password is in no dictionary, so every candidate offered against one is wrong and
+the user would pay a hold of `1` per run to escape them. The strip shows one dot per character
+instead of the letters, because the field's own masking is worth little while the keyboard prints
+the same word across the television. Capitals come from the held `0` and every QWERTY mark from
+the held `1`; the digits come from the digit mode, which a numeric field turns on by itself and
+which a password field does not, so that is the one function here that wants a button of its own.
 
 Five keys are assignable from settings, captured from the remote rather than chosen from a list:
 show-the-keyboard, spell, delete, switch-language and digit mode. The trigger cannot be reached any

@@ -44,6 +44,15 @@ class T9ImeService : InputMethodService() {
      */
     private var mayLearn = true
 
+    /**
+     * Whether the strip has to hide what is being typed, because the field is hiding it too.
+     *
+     * Only a masked password field sets this. It is about the room rather than about the device:
+     * the editor's dots keep a password off the screen and the candidate strip put it straight
+     * back, in the largest type on the display.
+     */
+    private var masked = false
+
     private var punctuationAt = -1
 
     /**
@@ -92,11 +101,26 @@ class T9ImeService : InputMethodService() {
 
     override fun onStartInput(info: EditorInfo?, restarting: Boolean) {
         super.onStartInput(info, restarting)
-        engine.reset()
         engine.dictionary = dictionaries.dictionaryFor(preferences.activeLanguage)
         mayLearn = preferences.isLearning && isLearnable(info)
         showLanguages = false
         deferredKey = KeyEvent.KEYCODE_UNKNOWN
+
+        val variation = info?.inputType?.and(InputType.TYPE_MASK_VARIATION) ?: 0
+        val classification = info?.inputType?.and(InputType.TYPE_MASK_CLASS) ?: 0
+
+        // A password is in no dictionary by construction, so every candidate offered against one
+        // is wrong and the user pays a hold of `1` per run to get out of the prediction. Set
+        // before the reset below, which is what puts the first word into spelling.
+        engine.spellByDefault = isPassword(classification, variation)
+        engine.reset()
+
+        // The editor masks a password and the strip did not, and on a television the strip is the
+        // legible one — it draws the word in progress a metre high across the room. A
+        // visible-password field has already decided to show the text, so there is nothing left
+        // for the strip to hide.
+        masked = engine.spellByDefault &&
+            variation != InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
 
         // Like the digit mode below, the case and the mark layer belong to the field and not to
         // the app: neither a lock nor a half-used layer may follow the user into the next box.
@@ -105,7 +129,6 @@ class T9ImeService : InputMethodService() {
 
         // A field that wants a number gets digits without being asked. Anything else starts in
         // letters even if the mode was left on: the mode belongs to the field, not to the app.
-        val classification = info?.inputType?.and(InputType.TYPE_MASK_CLASS)
         digits = classification == InputType.TYPE_CLASS_NUMBER ||
             classification == InputType.TYPE_CLASS_PHONE ||
             classification == InputType.TYPE_CLASS_DATETIME
@@ -475,6 +498,7 @@ class T9ImeService : InputMethodService() {
                 digits = digits,
                 hasEditor = currentInputConnection != null,
                 learning = mayLearn,
+                masked = masked,
                 customKeys = preferences.customKeys,
             )
         )
@@ -500,26 +524,39 @@ class T9ImeService : InputMethodService() {
         }
         val variation = info.inputType and InputType.TYPE_MASK_VARIATION
         val classification = info.inputType and InputType.TYPE_MASK_CLASS
+        if (isPassword(classification, variation)) {
+            return false
+        }
         if (classification == InputType.TYPE_CLASS_TEXT) {
             if (info.inputType and InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS != 0) {
                 return false
             }
-            if (variation == InputType.TYPE_TEXT_VARIATION_PASSWORD ||
-                variation == InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD ||
-                variation == InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD ||
-                variation == InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS ||
+            if (variation == InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS ||
                 variation == InputType.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS ||
                 variation == InputType.TYPE_TEXT_VARIATION_URI
             ) {
                 return false
             }
         }
-        if (classification == InputType.TYPE_CLASS_NUMBER &&
-            variation == InputType.TYPE_NUMBER_VARIATION_PASSWORD
-        ) {
-            return false
-        }
         return true
+    }
+
+    /**
+     * Whether the field holds a password, in all four ways Android has of saying so.
+     *
+     * Two callers ask, and they want different things from the answer — one decides what may be
+     * remembered, the other what may be drawn and whether the keyboard predicts at all. They must
+     * never disagree about which field this is, which is why the list of variations lives here
+     * once rather than at each of them.
+     */
+    private fun isPassword(classification: Int, variation: Int): Boolean = when (classification) {
+        InputType.TYPE_CLASS_TEXT ->
+            variation == InputType.TYPE_TEXT_VARIATION_PASSWORD ||
+                variation == InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD ||
+                variation == InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD
+
+        InputType.TYPE_CLASS_NUMBER -> variation == InputType.TYPE_NUMBER_VARIATION_PASSWORD
+        else -> false
     }
 
     private companion object {

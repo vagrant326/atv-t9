@@ -86,6 +86,7 @@
     <string name="strip_spell_only">LITEROWANIE</string>
     <string name="strip_no_match_only">Żadne słowo nie pasuje — przytrzymaj 1 i przeliteruj.</string>
     <string name="strip_digits">CYFRY</string>
+    <string name="strip_password">HASŁO — nie pokazujemy go tutaj i nie zapamiętujemy</string>
 
     <string name="strip_hint_walk">Słowa</string>
     <string name="strip_hint_commit">Zatwierdź</string>
