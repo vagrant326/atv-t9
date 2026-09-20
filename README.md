@@ -10,10 +10,11 @@ Third application in the programme, after
 no shared code: each one is a whole input method rather than a variation on one, and the part
 they would share is the part that differs.
 
-**To install it:** AFTVnews Downloader code **9874066**. That is the dev channel, which is all
-there is so far — there is no production release yet. Seven digits on the remote beats typing a
-URL with a grid keyboard, which is the problem this project exists to solve.
-[Details and the direct link below.](#installing)
+**To install it:** the production build is at the permanent address below. Its AFTVnews
+Downloader code is not registered yet — code **9874066** installs the dev channel, which is a
+separate application and sits beside the released one rather than over it. Seven digits on the
+remote beats typing a URL with a grid keyboard, which is the problem this project exists to solve.
+[Details and the direct links below.](#installing)
 
 ---
 
@@ -125,19 +126,22 @@ socket this app owns.
 
 ## Installing
 
-In the AFTVnews Downloader app, enter code **9874066**. Seven digits on the remote beats entering
-a URL with a grid keyboard, which is the problem this project exists to solve.
+In the AFTVnews Downloader app, seven digits beat entering a URL with a grid keyboard, which is
+the problem this project exists to solve. The **dev channel** has a code,
+**9874066**; production does not have one yet, because the code is registered by hand after the
+release exists and this is the first one.
 
-That code is the **dev channel**, and at the moment it is the whole list: this keyboard has no
-production release yet, so there is nothing for a production code to resolve to. When the first
-one lands it gets its own code, and it installs *alongside* this build rather than over it — the
-two are separate applications.
-
-The address works directly as well. It is permanent and always serves the newest build:
+Both addresses work directly, and both are permanent — each always serves the newest build of its
+channel:
 
 ```
+https://github.com/vagrant326/atv-t9/releases/download/latest/atv-t9.apk
 https://github.com/vagrant326/atv-t9/releases/download/latest-dev/atv-t9-dev.apk
 ```
+
+They are two separate applications, so the dev build installs *alongside* the released one rather
+than over it. That is deliberate: an experiment that misbehaves must not take the working
+keyboard with it.
 
 Dev builds are published as prereleases, so they never show up as "Latest" on the releases page —
 `latest-dev` always points at the newest one. The asset name deliberately carries no version
@@ -178,13 +182,11 @@ take the working keyboard with it.
 | `main` | Release | `vx.y.z`, installs as **atv-t9** |
 
 Production owns the major and the minor; a dev build keeps them and counts the patch from the
-last production release, so `dev-0.2.7` is the seventh dev build past `v0.2.0`. Nothing has
-shipped to production here yet, so the dev builds are still counting from `0.0`.
+last production release, so `dev-0.2.7` is the seventh dev build past `v0.2.0`.
 
 Day to day: work on `develop`, which publishes a dev build on every push. To ship, open a pull
-request from `develop` to `main` and merge it — `main` does not exist yet in this repository, and
-that merge is what creates it. **Do not delete `develop`**; it is long-lived. After merging, bring
-it back in line so the next dev release contains the merge:
+request from `develop` to `main` and merge it. **Do not delete `develop`**; it is long-lived.
+After merging, bring it back in line so the next dev release contains the merge:
 
 ```bash
 git switch develop && git merge --ff-only main && git push
