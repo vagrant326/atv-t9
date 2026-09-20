@@ -10,10 +10,9 @@ Third application in the programme, after
 no shared code: each one is a whole input method rather than a variation on one, and the part
 they would share is the part that differs.
 
-**To install it:** the production build is at the permanent address below. Its AFTVnews
-Downloader code is not registered yet — code **9874066** installs the dev channel, which is a
-separate application and sits beside the released one rather than over it. Seven digits on the
-remote beats typing a URL with a grid keyboard, which is the problem this project exists to solve.
+**To install it:** AFTVnews Downloader code **8631756**. Seven digits on the remote beats typing
+a URL with a grid keyboard, which is the problem this project exists to solve. The dev channel is
+**9874066**, and installs alongside rather than over the released one.
 [Details and the direct links below.](#installing)
 
 ---
@@ -126,27 +125,23 @@ socket this app owns.
 
 ## Installing
 
-In the AFTVnews Downloader app, seven digits beat entering a URL with a grid keyboard, which is
-the problem this project exists to solve. The **dev channel** has a code,
-**9874066**; production does not have one yet, because the code is registered by hand after the
-release exists and this is the first one.
+In the AFTVnews Downloader app, enter code **8631756**. Seven digits on the remote beats entering
+a URL with a grid keyboard, which is the problem this project exists to solve. The dev channel is
+**9874066**, and installs alongside rather than over the released one — they are two separate
+applications, so an experiment that misbehaves does not take the working keyboard with it.
 
-Both addresses work directly, and both are permanent — each always serves the newest build of its
-channel:
+Or use either address directly. Both are permanent and both always serve the newest build of
+their channel:
 
 ```
 https://github.com/vagrant326/atv-t9/releases/download/latest/atv-t9.apk
 https://github.com/vagrant326/atv-t9/releases/download/latest-dev/atv-t9-dev.apk
 ```
 
-They are two separate applications, so the dev build installs *alongside* the released one rather
-than over it. That is deliberate: an experiment that misbehaves must not take the working
-keyboard with it.
-
 Dev builds are published as prereleases, so they never show up as "Latest" on the releases page —
 `latest-dev` always points at the newest one. The asset name deliberately carries no version
-number, which is what keeps both the URL and the Downloader code valid across releases; rename the
-asset and the code breaks silently.
+number, which is what keeps the URLs and both Downloader codes valid across releases; rename an
+asset and its code breaks silently.
 
 Then Settings → System → Keyboard, select it, and enable it. Android requires that step manually
 for every IME.
