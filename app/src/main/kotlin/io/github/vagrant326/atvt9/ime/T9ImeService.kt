@@ -109,12 +109,13 @@ class T9ImeService : InputMethodService() {
     /**
      * Whether the field is not a text editor at all and only understands key events.
      *
-     * This is what Netflix and YouTube search give a raised keyboard: `TYPE_NULL` and the
-     * framework's fallback connection, which holds no text and turns each commit into key events
-     * - real ones for a single character, one `ACTION_MULTIPLE` for anything longer, which those
-     * apps ignore. So a whole word committed at once never arrived. Here the word is kept off the
-     * connection until accepted and then goes in a character at a time, and anything that would
-     * read or edit the text through the connection is replaced by keys, because there is no text.
+     * This is what Netflix and YouTube search give a raised keyboard: the framework's fallback
+     * connection, which holds no text and turns each commit into key events - real ones for a
+     * single character, one `ACTION_MULTIPLE` for anything longer, which those apps ignore. So a
+     * whole word committed at once never arrived. Here the word is kept off the connection, and
+     * anything that would read or edit the text through it is replaced by keys, because there is
+     * no text. Set from `TYPE_NULL` when the field admits it, and from the first commit when it
+     * does not - see [finishWord].
      */
     private var raw = false
 
@@ -582,10 +583,16 @@ class T9ImeService : InputMethodService() {
             val word = engine.commit(learn = false)
             if (word != null) {
                 val text = letterCase.apply(word)
-                if (raw) {
-                    text.forEach { sendKeyChar(it) }
-                } else {
-                    connection?.commitText(text, 1)
+                // A character at a time everywhere, not only where [raw] is already known: the
+                // first commit replaces the composing region and the rest append, which a real
+                // editor ends up with as the same word, and it is the only form a fallback
+                // connection turns into keys.
+                text.forEach { connection?.commitText(it.toString(), 1) }
+                // Netflix declares an ordinary text field over a fallback connection, so
+                // `TYPE_NULL` does not find it. What gives it away is that the fallback forgets
+                // each character as soon as it has been sent as a key.
+                if (connection?.getTextBeforeCursor(1, 0)?.isEmpty() == true) {
+                    raw = true
                 }
                 openWord.append(text)
                 letterCase = letterCase.afterWord()
