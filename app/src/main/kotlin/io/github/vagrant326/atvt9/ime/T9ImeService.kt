@@ -106,6 +106,18 @@ class T9ImeService : InputMethodService() {
 
     private var showLanguages = false
 
+    /**
+     * Whether the field is not a text editor at all and only understands key events.
+     *
+     * This is what Netflix and YouTube search give a raised keyboard: `TYPE_NULL` and the
+     * framework's fallback connection, which holds no text and turns each commit into key events
+     * - real ones for a single character, one `ACTION_MULTIPLE` for anything longer, which those
+     * apps ignore. So a whole word committed at once never arrived. Here the word is kept off the
+     * connection until accepted and then goes in a character at a time, and anything that would
+     * read or edit the text through the connection is replaced by keys, because there is no text.
+     */
+    private var raw = false
+
     override fun onCreate() {
         super.onCreate()
         preferences = Preferences(this)
@@ -126,6 +138,7 @@ class T9ImeService : InputMethodService() {
         showLanguages = false
         deferredKey = KeyEvent.KEYCODE_UNKNOWN
         openWord.setLength(0)
+        raw = (info?.inputType ?: InputType.TYPE_NULL) == InputType.TYPE_NULL
 
         val variation = info?.inputType?.and(InputType.TYPE_MASK_VARIATION) ?: 0
         val classification = info?.inputType?.and(InputType.TYPE_MASK_CLASS) ?: 0
@@ -310,7 +323,7 @@ class T9ImeService : InputMethodService() {
 
             is Action.Delete -> {
                 if (!engine.backspace()) {
-                    currentInputConnection?.deleteSurroundingText(1, 0)
+                    deleteBeforeCursor()
                     openWord.setLength((openWord.length - 1).coerceAtLeast(0))
                 } else {
                     setComposing()
@@ -469,7 +482,7 @@ class T9ImeService : InputMethodService() {
         }
         if (digit == symbolKey) {
             symbolAt = (symbolAt + 1) % run.length
-            currentInputConnection?.deleteSurroundingText(1, 0)
+            deleteBeforeCursor()
         } else {
             finishWord(commit = true)
             learnOpenWord()
@@ -487,7 +500,7 @@ class T9ImeService : InputMethodService() {
         learnOpenWord()
         val connection = currentInputConnection ?: return
         if (next > 0) {
-            connection.deleteSurroundingText(1, 0)
+            deleteBeforeCursor()
         }
         connection.commitText(PUNCTUATION[next].toString(), 1)
         punctuationAt = next
@@ -526,7 +539,9 @@ class T9ImeService : InputMethodService() {
         if (!mayLearn || text.isEmpty()) {
             return
         }
-        if (currentInputConnection?.getTextBeforeCursor(text.length, 0)?.toString() != text) {
+        // A raw field has no text to check against and no caret to have moved, and refusing there
+        // would mean nothing typed into Netflix or YouTube is ever learnt.
+        if (!raw && currentInputConnection?.getTextBeforeCursor(text.length, 0)?.toString() != text) {
             return
         }
         if (userWords.dictionary.learn(text)) {
@@ -539,6 +554,10 @@ class T9ImeService : InputMethodService() {
     /** Shows the pending word inline, so the field always reads as what committing would leave. */
     private fun setComposing() {
         punctuationAt = -1
+        // A raw field cannot take a word back, so the strip is the only place it can be shown.
+        if (raw) {
+            return
+        }
         val connection = currentInputConnection ?: return
         if (engine.isComposing) {
             connection.setComposingText(letterCase.apply(engine.composing), 1)
@@ -563,13 +582,25 @@ class T9ImeService : InputMethodService() {
             val word = engine.commit(learn = false)
             if (word != null) {
                 val text = letterCase.apply(word)
-                connection?.commitText(text, 1)
+                if (raw) {
+                    text.forEach { sendKeyChar(it) }
+                } else {
+                    connection?.commitText(text, 1)
+                }
                 openWord.append(text)
                 letterCase = letterCase.afterWord()
             }
         } else {
             engine.reset()
             connection?.finishComposingText()
+        }
+    }
+
+    private fun deleteBeforeCursor() {
+        if (raw) {
+            sendDownUpKeyEvents(KeyEvent.KEYCODE_DEL)
+        } else {
+            currentInputConnection?.deleteSurroundingText(1, 0)
         }
     }
 
