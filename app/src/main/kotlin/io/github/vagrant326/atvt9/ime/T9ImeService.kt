@@ -588,9 +588,9 @@ class T9ImeService : InputMethodService() {
                 // editor ends up with as the same word, and it is the only form a fallback
                 // connection turns into keys.
                 text.forEach { connection?.commitText(it.toString(), 1) }
-                // Netflix declares an ordinary text field over a fallback connection, so
-                // `TYPE_NULL` does not find it. What gives it away is that the fallback forgets
-                // each character as soon as it has been sent as a key.
+                // Netflix shows no text field and only reaches the keyboard through the trigger
+                // key, yet checking for `TYPE_NULL` did not find it. What gives the fallback away
+                // is that it forgets each character as soon as it has been sent as a key.
                 if (connection?.getTextBeforeCursor(1, 0)?.isEmpty() == true) {
                     raw = true
                 }
