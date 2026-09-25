@@ -2,7 +2,9 @@ package io.github.vagrant326.atvt9.ime
 
 import android.inputmethodservice.InputMethodService
 import android.os.Build
+import android.os.SystemClock
 import android.text.InputType
+import android.view.KeyCharacterMap
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
@@ -587,12 +589,20 @@ class T9ImeService : InputMethodService() {
                 // first commit replaces the composing region and the rest append, which a real
                 // editor ends up with as the same word, and it is the only form a fallback
                 // connection turns into keys.
-                text.forEach { connection?.commitText(it.toString(), 1) }
-                // Netflix shows no text field and only reaches the keyboard through the trigger
-                // key, yet checking for `TYPE_NULL` did not find it. What gives the fallback away
-                // is that it forgets each character as soon as it has been sent as a key.
-                if (connection?.getTextBeforeCursor(1, 0)?.isEmpty() == true) {
-                    raw = true
+                text.forEach { char ->
+                    val base = DIACRITIC_KEYS[char.lowercaseChar()]
+                    if (raw && base != null) {
+                        probeDiacritic(base, char.isUpperCase())
+                    } else {
+                        connection?.commitText(char.toString(), 1)
+                    }
+                    // Netflix shows no text field and only reaches the keyboard through the
+                    // trigger key, yet checking for `TYPE_NULL` did not find it. What gives the
+                    // fallback away is that it forgets each character as soon as it has been
+                    // sent as a key.
+                    if (connection?.getTextBeforeCursor(1, 0)?.isEmpty() == true) {
+                        raw = true
+                    }
                 }
                 openWord.append(text)
                 letterCase = letterCase.afterWord()
@@ -600,6 +610,50 @@ class T9ImeService : InputMethodService() {
         } else {
             engine.reset()
             connection?.finishComposingText()
+        }
+    }
+
+    /**
+     * PROOF OF CONCEPT, to be reverted: a raw field drops any character without a key on the
+     * virtual keymap, which is all nine Polish ones. Each is sent as three chords on the Polish
+     * programmer layout, numbered so one photo of the search box shows which one the app took:
+     * `1` right Alt, `2` left Alt, `3` Ctrl+Alt.
+     */
+    private fun probeDiacritic(key: Int, upper: Boolean) {
+        val shift = if (upper) listOf(KeyEvent.KEYCODE_SHIFT_LEFT to SHIFT) else emptyList()
+        val chords = listOf(
+            listOf(KeyEvent.KEYCODE_ALT_RIGHT to ALT_RIGHT),
+            listOf(KeyEvent.KEYCODE_ALT_LEFT to ALT_LEFT),
+            listOf(KeyEvent.KEYCODE_CTRL_LEFT to CTRL_LEFT, KeyEvent.KEYCODE_ALT_LEFT to ALT_LEFT),
+        )
+        chords.forEachIndexed { index, modifiers ->
+            currentInputConnection?.commitText((index + 1).toString(), 1)
+            sendChord(modifiers + shift, key)
+        }
+    }
+
+    private fun sendChord(modifiers: List<Pair<Int, Int>>, key: Int) {
+        val connection = currentInputConnection ?: return
+        val down = SystemClock.uptimeMillis()
+        var meta = 0
+        fun send(action: Int, code: Int) {
+            connection.sendKeyEvent(
+                KeyEvent(
+                    down, SystemClock.uptimeMillis(), action, code, 0, meta,
+                    KeyCharacterMap.VIRTUAL_KEYBOARD, 0,
+                    KeyEvent.FLAG_SOFT_KEYBOARD or KeyEvent.FLAG_KEEP_TOUCH_MODE,
+                )
+            )
+        }
+        for ((code, flag) in modifiers) {
+            meta = meta or flag
+            send(KeyEvent.ACTION_DOWN, code)
+        }
+        send(KeyEvent.ACTION_DOWN, key)
+        send(KeyEvent.ACTION_UP, key)
+        for ((code, flag) in modifiers.asReversed()) {
+            send(KeyEvent.ACTION_UP, code)
+            meta = meta and flag.inv()
         }
     }
 
@@ -712,5 +766,22 @@ class T9ImeService : InputMethodService() {
          * no obligation to be small and a novel would be copied across the process boundary.
          */
         const val MAX_CONTEXT = 512
+
+        val DIACRITIC_KEYS = mapOf(
+            'ą' to KeyEvent.KEYCODE_A,
+            'ć' to KeyEvent.KEYCODE_C,
+            'ę' to KeyEvent.KEYCODE_E,
+            'ł' to KeyEvent.KEYCODE_L,
+            'ń' to KeyEvent.KEYCODE_N,
+            'ó' to KeyEvent.KEYCODE_O,
+            'ś' to KeyEvent.KEYCODE_S,
+            'ź' to KeyEvent.KEYCODE_X,
+            'ż' to KeyEvent.KEYCODE_Z,
+        )
+
+        const val ALT_RIGHT = KeyEvent.META_ALT_ON or KeyEvent.META_ALT_RIGHT_ON
+        const val ALT_LEFT = KeyEvent.META_ALT_ON or KeyEvent.META_ALT_LEFT_ON
+        const val CTRL_LEFT = KeyEvent.META_CTRL_ON or KeyEvent.META_CTRL_LEFT_ON
+        const val SHIFT = KeyEvent.META_SHIFT_ON or KeyEvent.META_SHIFT_LEFT_ON
     }
 }
